@@ -1,0 +1,34 @@
+{
+    "name": "sunnysideup/health-check-provider",
+    "type": "silverstripe-vendormodule",
+    "description": "Provides data to the check.silverstripe-webdevelopment.com",
+    "keywords": [
+        "Silverstripe-CMS",
+        "CMS",
+        "Silverstripe",
+        "healthcheck",
+        "weather",
+        "server",
+        "database",
+        "seo",
+        "domain name"
+    ],
+    "require": {
+        "silverstripe/frameworkd": "^4.0"
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "Nicolaas Francken",
+            "email": "modules@sunnysideup.co.nz",
+            "role": "lead developer"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Sunnysideup\\HealthCheckProvider\\": "src/"
+        }
+    }
+}
