@@ -11,11 +11,10 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
+use Sunnysideup\HealthCheckProvider\Api\SendData;
 
 class HealthCheckProvider extends DataObject
 {
-    private static $receiving_url = 'check.silverstripe-webdevelopment.com/new-report';
-
     #######################
     ### Names Section
     #######################
@@ -207,22 +206,9 @@ class HealthCheckProvider extends DataObject
 
     protected function curlRequest()
     {
-        try {
-            $request_url = $this->Config()->get('receiving_url');
-            $curl = curl_init($request_url);
-            # Setup request to send json via POST.
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $this->Data);
-            curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
-            # Return response instead of printing.
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            # Send request.
-            $result = curl_exec($curl);
-            curl_close($curl);
-            # return response.
-            return $result;
-        } catch (\Exception $exception) {
-            return 'Caught exception: ' . $exception->getMessage();
-        }
+        $sender = new SendData();
+        $sender->setData($this->Data);
+        $sender->send();
     }
 
     /**
