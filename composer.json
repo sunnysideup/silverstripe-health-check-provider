@@ -1,7 +1,7 @@
 {
     "name": "sunnysideup/health-check-provider",
     "type": "silverstripe-vendormodule",
-    "description": "Provides data to the check.silverstripe-webdevelopment.com",
+    "description": "Provides data to the check.silverstripe-webdevelopment.com site",
     "keywords": [
         "Silverstripe-CMS",
         "CMS",
@@ -30,5 +30,12 @@
         "psr-4": {
             "Sunnysideup\\HealthCheckProvider\\": "src/"
         }
+    },
+    "suggested": {
+      "sunnysideup/test-email" : "test your email",
+      "silverstripe/externallinks" : "check external links",
+      "bringyourownideas/silverstripe-maintenance" : "analyse your modules",
+      "bringyourownideas/silverstripe-composer-update-checker" : "analyse your modules",
+      "bringyourownideas/silverstripe-composer-security-checker" : "analyse your modules"
     }
 }
