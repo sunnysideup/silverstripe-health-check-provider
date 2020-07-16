@@ -113,5 +113,4 @@ class WhatFiles extends HealthCheckItemRunner
 
         return false;
     }
-
 }

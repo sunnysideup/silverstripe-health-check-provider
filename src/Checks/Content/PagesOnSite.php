@@ -7,10 +7,15 @@ use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class PagesOnSite extends HealthCheckItemRunner
 {
-
-    public function getCalculatedAnswer() : int
+    public function getCalculatedAnswer(): int
     {
         return SiteTree::get()->count();
     }
 
+    protected function nameSpacesRequired()
+    {
+        return [
+            'SilverStripe\\Reports',
+        ];
+    }
 }

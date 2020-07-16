@@ -7,8 +7,6 @@ use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class WhatGroupsAreListed extends HealthCheckItemRunner
 {
-
-
     public function getCalculatedAnswer(): array
     {
         $array = [];

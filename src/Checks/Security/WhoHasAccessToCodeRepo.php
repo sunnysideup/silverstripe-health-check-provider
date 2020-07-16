@@ -2,18 +2,17 @@
 
 namespace Sunnysideup\HealthCheckProvider\Checks\Security;
 
-use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 use SilverStripe\Control\Director;
+use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class WhoHasAccessToCodeRepo extends HealthCheckItemRunner
 {
-
-    public function getCalculatedAnswer() : string
+    public function getCalculatedAnswer(): string
     {
-        return shell_exec(
+        return trim(shell_exec(
             '
-                cd '.Director::baseFolder().' && git config --get remote.origin.url
+                cd ' . Director::baseFolder() . ' && git config --get remote.origin.url
             '
-        );
+        ));
     }
 }

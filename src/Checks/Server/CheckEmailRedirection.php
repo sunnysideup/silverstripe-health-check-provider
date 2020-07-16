@@ -9,7 +9,6 @@ use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class CheckEmailRedirection extends HealthCheckItemRunner
 {
-
     public function getCalculatedAnswer()
     {
         $array['admin_email'] = Config::inst()->get(Email::class, 'admin_email');

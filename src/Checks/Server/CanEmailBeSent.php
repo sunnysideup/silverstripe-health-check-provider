@@ -10,7 +10,7 @@ class CanEmailBeSent extends HealthCheckItemRunner
     ### Names Section
     #######################
 
-    public function nameSpacesRequired(): array
+    protected function nameSpacesRequired(): array
     {
         return [
             'Sunnysideup\\EmailTest',

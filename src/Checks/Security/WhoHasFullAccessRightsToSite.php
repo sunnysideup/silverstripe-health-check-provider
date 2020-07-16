@@ -7,7 +7,6 @@ use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class WhoHasFullAccessRightsToSite extends HealthCheckItemRunner
 {
-
     private static $access_code = [
         'ADMIN',
     ];
@@ -21,8 +20,8 @@ class WhoHasFullAccessRightsToSite extends HealthCheckItemRunner
                 $group->Members()->map('Title', 'Email');
                 if ($map) {
                     foreach ($map->toArray() as $name => $email) {
-                        $array[$email] =[
-                            'Name' => $title,
+                        $array[$email] = [
+                            'Name' => $name,
                             'Email' => $email,
                         ];
                     }

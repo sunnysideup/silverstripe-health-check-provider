@@ -7,8 +7,7 @@ use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class AreThereAnyStartupErrors extends HealthCheckItemRunner
 {
-
-    public function getCalculatedAnswer(): bool
+    public function getIsEnabled(): bool
     {
         if (Environment::getEnv('SS_ALLOW_SMOKE_TEST')) {
             return true;
@@ -16,7 +15,7 @@ class AreThereAnyStartupErrors extends HealthCheckItemRunner
         return false;
     }
 
-    public function nameSpacesRequired(): array
+    protected function nameSpacesRequired(): array
     {
         return [
             'Sunnysideup\\TemplateOverview\\',
