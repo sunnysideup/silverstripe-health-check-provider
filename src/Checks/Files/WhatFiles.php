@@ -21,17 +21,22 @@ class WhatFiles extends HealthCheckItemRunner
         // DIRECTORY_SEPARATOR . '.',
     ];
 
+    protected $allowedExtension = [];
+
     /**
      * get a list of files in the asset path
      * @return array
      */
     public function getCalculatedAnswer()
     {
+        $this->allowedExtension = Config::inst()->get(File::class, 'allowed_extensions');
         $finalArray = [];
         $arrayRaw = new RecursiveIteratorIterator(
             new RecursiveDirectoryIterator($this->getAssetPath()),
             RecursiveIteratorIterator::SELF_FIRST
         );
+        $count = 0;
+        $sizeSum = 0;
         foreach ($arrayRaw as $src) {
             $path = $src->getPathName();
             if ($this->excludeFileTest($path)) {
@@ -44,11 +49,20 @@ class WhatFiles extends HealthCheckItemRunner
             if ($this->excludeFolderTest($folderName)) {
                 continue;
             }
-
-            $finalArray[] = $path;
+            $count++;
+            $size = filesize($path);
+            $sizeSum += $size;
+            if($size > $this->Config()->get('minimum_size') || $this->invalidExtension($path)) {
+                $shortPath = str_replace($this->getAssetPath(), '', $path);
+                $finalArray[$path] = $shortPath;
+            }
         }
 
-        return $finalArray;
+        return [
+            'Files' => $finalArray,
+            'Count' => $count,
+            'Size' => $sizeSum,
+        ];
     }
 
     /**
@@ -113,4 +127,19 @@ class WhatFiles extends HealthCheckItemRunner
 
         return false;
     }
+
+    protected function invalidExtension(string $path) : bool
+    {
+        return $this->validExtension($path) ? false : true;
+    }
+
+    protected function validExtension(string $path): bool
+    {
+        $extension = $this->fileExtension($path);
+        if ($extension && in_array($extension, $this->allowedExtension, true)) {
+            return true;
+        }
+        return false;
+    }
+
 }

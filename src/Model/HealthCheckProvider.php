@@ -290,9 +290,9 @@ class HealthCheckProvider extends DataObject
     {
         $base = Director::absoluteBaseURL();
         $base = str_replace('https://', '', $base);
-        $base = rtrim($base, '/');
+        $base = str_replace('http://', '', $base);
 
-        return str_replace('http://', '', $base);
+        return rtrim($base, '/');
     }
 
     #######################
