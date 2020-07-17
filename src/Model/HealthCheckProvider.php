@@ -304,7 +304,11 @@ class HealthCheckProvider extends DataObject
         $rawData = [
             'MainUrl' => $this->MainUrl,
             'OtherUrls' => $this->OtherUrls,
-            'Editor' => $this->Editor()->Email,
+            'Editor' => [
+                'Email' => $this->Editor()->Email,
+                'FirstName' => $this->Editor()->FirstName,
+                'Surname' => $this->Editor()->Surname,
+            ],
             'Data' => [],
         ];
         $list = $this->HealthCheckItemProviders()->filter(['Include' => true]);
