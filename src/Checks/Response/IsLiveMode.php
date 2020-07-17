@@ -7,7 +7,7 @@ use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class IsLiveMode extends HealthCheckItemRunner
 {
-    public function getCalculatedAnswer()
+    public function getCalculatedAnswer() : bool
     {
         return Director::isLive() ? true : false;
     }

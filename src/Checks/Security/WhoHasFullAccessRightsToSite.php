@@ -17,14 +17,13 @@ class WhoHasFullAccessRightsToSite extends HealthCheckItemRunner
         $groups = Permission::get_groups_by_permission($this->Config()->get('access_code'));
         foreach ($groups as $group) {
             if ($group->Members()->count()) {
-                $map = $group->Members()->map('Title', 'Email');
-                if ($map) {
-                    foreach ($map->toArray() as $name => $email) {
-                        $array[$email] = [
-                            'Name' => $name,
-                            'Email' => $email,
-                        ];
-                    }
+                $members = $group->Members();
+                foreach ($members as $member) {
+                    $array[$member->ID] = [
+                        'ID' => $member->ID,
+                        'Name' => $member->getTitle(),
+                        'Email' => $member->Email,
+                    ];
                 }
             }
         }
