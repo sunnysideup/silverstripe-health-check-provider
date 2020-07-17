@@ -147,6 +147,7 @@ class HealthCheckProvider extends DataObject
             foreach (HealthCheckItemProvider::get()->filter(['Include' => true]) as $item) {
                 $this->HealthCheckItemProviders()->add($item);
             }
+            register_shutdown_function([$this, 'write']);
         }
 
         //only triggers when ready!
