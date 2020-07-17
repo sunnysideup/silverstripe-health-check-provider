@@ -5,12 +5,10 @@ namespace Sunnysideup\HealthCheckProvider\Checks\Database;
 use Exception;
 
 use SilverStripe\ORM\DatabaseAdmin;
-use Sunnysideup\HealthCheck\Checks\HealthCheckItemRunner;
-use Sunnysideup\HealthCheck\Model\HealthCheckAnswer;
+use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class DevBuild extends HealthCheckItemRunner
 {
-
     public function getCalculatedAnswer(): string
     {
         $db = new DatabaseAdmin();
@@ -30,5 +28,4 @@ class DevBuild extends HealthCheckItemRunner
 
         return $answer;
     }
-
 }

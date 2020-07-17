@@ -7,13 +7,12 @@ use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class SizeOfDatabase extends HealthCheckItemRunner
 {
-
     private static $fields_required = [
-        "Name",
-        "Engine",
-        "Data_length",
-        "Index_length",
-        "Collation",
+        'Name',
+        'Engine',
+        'Data_length',
+        'Index_length',
+        'Collation',
     ];
 
     public function getCalculatedAnswer(): array
@@ -24,9 +23,9 @@ class SizeOfDatabase extends HealthCheckItemRunner
         foreach ($rows as $row) {
             $array[] = $row;
         }
-        foreach($array as $pos => $row) {
-            foreach($row as $key => $value) {
-                if(! in_array($key, $allowedKeys, true)) {
+        foreach ($array as $pos => $row) {
+            foreach (array_keys($row) as $key) {
+                if (! in_array($key, $allowedKeys, true)) {
                     unset($array[$pos][$key]);
                 }
             }

@@ -13,9 +13,9 @@ class SendData
     use Injectable;
     use Configurable;
 
-    protected $data = '';
-
     private const URL = 'check.silverstripe-webdevelopment.com/report/newreport';
+
+    protected $data = '';
 
     public function setData(string $data)
     {

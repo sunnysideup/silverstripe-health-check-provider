@@ -11,6 +11,8 @@ use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class WhatFiles extends HealthCheckItemRunner
 {
+    protected $allowedExtension = [];
+
     private static $excluded_folders = [];
 
     private static $excluded_files = [
@@ -23,9 +25,6 @@ class WhatFiles extends HealthCheckItemRunner
 
     // anything over half a megabyte may needs attention...
     private static $min_size_in_bytes = ((1024 * 1024) / 2);
-
-    protected $allowedExtension = [];
-
 
     /**
      * get a list of files in the asset path
@@ -56,7 +55,7 @@ class WhatFiles extends HealthCheckItemRunner
             $count++;
             $size = filesize($path);
             $sizeSum += $size;
-            if($size > $this->Config()->get('min_size_in_bytes') || $this->invalidExtension($path)) {
+            if ($size > $this->Config()->get('min_size_in_bytes') || $this->invalidExtension($path)) {
                 $shortPath = str_replace($this->getAssetPath(), '', $path);
                 $finalArray[$path] = $shortPath;
             }
@@ -132,7 +131,7 @@ class WhatFiles extends HealthCheckItemRunner
         return false;
     }
 
-    protected function invalidExtension(string $path) : bool
+    protected function invalidExtension(string $path): bool
     {
         return $this->validExtension($path) ? false : true;
     }
@@ -145,5 +144,4 @@ class WhatFiles extends HealthCheckItemRunner
         }
         return false;
     }
-
 }

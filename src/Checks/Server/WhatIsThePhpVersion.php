@@ -12,6 +12,6 @@ class WhatIsThePhpVersion extends HealthCheckItemRunner
 
     public function getCalculatedAnswer()
     {
-        return phpversion();
+        return PHP_VERSION;
     }
 }
