@@ -27,7 +27,7 @@ class IsTherePageNotFoundPage extends HealthCheckItemRunner
 
     protected function htmlPageExists(): bool
     {
-        return file_exists(is_real(ASSETS_DIR) . '/error-' . $this->Config()->get('error_code') . '.html');
+        return file_exists(ASSETS_DIR . '/error-' . $this->Config()->get('error_code') . '.html');
     }
 
     protected function nameSpacesRequired(): array

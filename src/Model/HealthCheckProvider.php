@@ -11,6 +11,7 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
+use SilverStripe\Core\ClassInfo;
 use Sunnysideup\HealthCheckProvider\Api\SendData;
 
 class HealthCheckProvider extends DataObject
@@ -312,7 +313,8 @@ class HealthCheckProvider extends DataObject
         ];
         $list = $this->HealthCheckItemProviders()->filter(['Include' => true]);
         foreach ($list as $item) {
-            $rawData['Data'][$item->RunnerClassName] = $item->findAnswer($this);
+            $shortName = ClassInfo::shortName($item->RunnerClassName);
+            $rawData['Data'][$shortName] = $item->findAnswer($this);
         }
         return $rawData;
     }
