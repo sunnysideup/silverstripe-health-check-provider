@@ -15,7 +15,7 @@ class SendData
 
     protected $data = '';
 
-    private static $url = 'check.silverstripe-webdevelopment.com/report/newreport';
+    private const URL = 'check.silverstripe-webdevelopment.com/report/newreport';
 
     public function setData(string $data)
     {
@@ -25,7 +25,7 @@ class SendData
     public function send(): string
     {
         try {
-            $curl = curl_init($this->Config()->get('url'));
+            $curl = curl_init(self::URL);
 
             # Setup request to send json via POST.
             curl_setopt($curl, CURLOPT_POSTFIELDS, $this->data);

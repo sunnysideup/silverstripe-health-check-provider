@@ -15,6 +15,9 @@ use Sunnysideup\HealthCheckProvider\Api\SendData;
 
 class HealthCheckProvider extends DataObject
 {
+
+    private const VIEW_URL = 'https://check.silverstripe-webdevelopment.com/report/view/';
+
     #######################
     ### Names Section
     #######################
@@ -252,7 +255,7 @@ class HealthCheckProvider extends DataObject
     public function ViewLink()
     {
         if ($this->ResponseCode) {
-            return 'https://check.silverstripe-webdevelopment.com/report/view/' . $this->ResponseCode . '/';
+            return self::VIEW_URL . $this->ResponseCode . '/';
         }
     }
 

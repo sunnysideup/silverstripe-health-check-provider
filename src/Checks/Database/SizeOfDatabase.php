@@ -7,14 +7,30 @@ use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class SizeOfDatabase extends HealthCheckItemRunner
 {
+
+    private static $fields_required = [
+        "Name",
+        "Engine",
+        "Data_length",
+        "Index_length",
+        "Collation",
+    ];
+
     public function getCalculatedAnswer(): array
     {
         $rows = DB::query('SHOW TABLE STATUS;');
         $array = [];
+        $allowedKeys = $this->Config()->get('fields_required');
         foreach ($rows as $row) {
             $array[] = $row;
         }
-
+        foreach($array as $pos => $row) {
+            foreach($row as $key => $value) {
+                if(! in_array($key, $allowedKeys, true)) {
+                    unset($array[$pos][$key]);
+                }
+            }
+        }
         return $array;
     }
 }
