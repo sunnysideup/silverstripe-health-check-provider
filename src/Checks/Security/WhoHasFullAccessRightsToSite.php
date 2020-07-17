@@ -17,7 +17,7 @@ class WhoHasFullAccessRightsToSite extends HealthCheckItemRunner
         $groups = Permission::get_groups_by_permission($this->Config()->get('access_code'));
         foreach ($groups as $group) {
             if ($group->Members()->count()) {
-                $group->Members()->map('Title', 'Email');
+                $map = $group->Members()->map('Title', 'Email');
                 if ($map) {
                     foreach ($map->toArray() as $name => $email) {
                         $array[$email] = [

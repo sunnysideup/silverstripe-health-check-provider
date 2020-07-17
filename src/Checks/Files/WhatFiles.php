@@ -45,7 +45,7 @@ class WhatFiles extends HealthCheckItemRunner
                 continue;
             }
 
-            $finalArray[$path] = $path;
+            $finalArray[] = $path;
         }
 
         return $finalArray;

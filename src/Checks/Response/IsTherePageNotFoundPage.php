@@ -29,7 +29,7 @@ class IsTherePageNotFoundPage extends HealthCheckItemRunner
         return file_exists(ASSETS_DIR . '/error-' . $this->Config()->get('error_code') . '.html');
     }
 
-    protected function nameSpacesRequired()
+    protected function nameSpacesRequired(): array
     {
         return [
             'SilverStripe\\ErrorPage',

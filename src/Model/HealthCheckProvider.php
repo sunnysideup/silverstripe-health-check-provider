@@ -4,11 +4,11 @@ namespace Sunnysideup\HealthCheckProvider\Model;
 
 use SilverStripe\Control\Director;
 use SilverStripe\Forms\CheckboxSetField;
+use SilverStripe\Forms\HTMLReadonlyField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
 use Sunnysideup\HealthCheckProvider\Api\SendData;
@@ -36,6 +36,7 @@ class HealthCheckProvider extends DataObject
         'Sent' => 'Boolean',
         'SendCode' => 'Varchar',
         'ReceiptCode' => 'Varchar',
+        'HasError' => 'Boolean',
         'Data' => 'Text',
     ];
 
@@ -67,6 +68,7 @@ class HealthCheckProvider extends DataObject
     private static $summary_fields = [
         'Title' => 'Health Report Data',
         'Sent.Nice' => 'Sent',
+        'HasError.Nice' => 'Error',
         'Editor.Title' => 'Editor',
     ];
 
@@ -76,7 +78,6 @@ class HealthCheckProvider extends DataObject
 
     private static $casting = [
         'Title' => 'Varchar',
-        'HasError' => 'Boolean',
     ];
 
     /**
@@ -92,17 +93,6 @@ class HealthCheckProvider extends DataObject
             $str .= '; Not sent yet';
         }
         return $str;
-    }
-
-    /**
-     * casted variable
-     * @return string
-     */
-    public function getHasError(): string
-    {
-        $val = $this->SendCode === $this->ReceiptCode ? false : true;
-
-        return DBField::create_field('Boolean', $val);
     }
 
     #######################
@@ -139,6 +129,10 @@ class HealthCheckProvider extends DataObject
             $this->MainUrl = $this->getSiteURL();
         }
         if (! $this->Sent) {
+        }
+        if ($this->Sent) {
+            $this->HasError = $this->SendCode === $this->ReceiptCode ? false : true;
+        } else {
             $this->Data = json_encode($this->retrieveDataInner(), JSON_PRETTY_PRINT);
         }
     }
@@ -146,16 +140,25 @@ class HealthCheckProvider extends DataObject
     public function onAfterWrite()
     {
         parent::onAfterWrite();
-        if ($this->SendNow) {
-            $this->send();
-            $this->SendNow = false;
-            $this->write();
+        if (intval($this->HealthCheckItemProviders()->count()) === 0) {
+            foreach (HealthCheckItemProvider::get()->filter(['Include' => true]) as $item) {
+                $this->HealthCheckItemProviders()->add($item);
+            }
         }
+
+        //only triggers when ready!
+        $this->send();
     }
 
     #######################
     ### CMS Edit Section
     #######################
+
+    public function populateDefaults()
+    {
+        parent::populateDefaults();
+        $this->MainUrl = $this->getSiteURL();
+    }
 
     public function getCMSFields()
     {
@@ -164,51 +167,115 @@ class HealthCheckProvider extends DataObject
             [
                 'SendCode',
                 'ReceiptCode',
-                'HealthCheckItemProviders',
-                'MainUrl',
-                'OtherUrls',
+                'Sent',
                 'Data',
+                'EditorID',
             ]
         );
-        $fields->addFieldsToTab(
-            'Root.Main',
-            [
-                TextField::create('MainUrl', 'Main URL'),
-                TextField::create('OtherUrls', 'Other Urls')
-                    ->setDescription('Separate by comma - e.g. new.mysite.com, otherurl.com, etc ...'),
-                ReadonlyField::create('Created'),
-                ReadonlyField::create('LastEdited'),
-                CheckboxSetField::create(
+        if ($this->exists()) {
+            $fields->removeByName(
+                [
                     'HealthCheckItemProviders',
-                    'Data Points',
-                    HealthCheckItemProvider::get()->map()
-                ),
-            ]
-        );
-        $fields->addFieldsToTab(
-            'Root.Output',
-            [
-                LiteralField::create(
-                    'Output',
-                    '<pre>' . $this->Data . '</pre>'
-                ),
-            ]
-        );
-
+                ]
+            );
+            if ($this->Sent) {
+                $fields->removeByName(
+                    [
+                        'SendNow',
+                    ]
+                );
+                $viewLink = $this->ViewLink();
+                if ($viewLink) {
+                    $fields->addFieldsToTab(
+                        'Root.Main',
+                        [
+                            HTMLReadonlyField::create(
+                                'Link',
+                                'Open report',
+                                '<a href="' . $viewLink . '">View Link</a>'
+                            ),
+                        ]
+                    );
+                }
+            } else {
+                $fields->removeByName(
+                    [
+                        'HasError',
+                    ]
+                );
+                $fields->addFieldsToTab(
+                    'Root.Main',
+                    [
+                        CheckboxSetField::create(
+                            'HealthCheckItemProviders',
+                            'Data Points',
+                            HealthCheckItemProvider::get()->filter(['Include' => true])->map()
+                        ),
+                    ]
+                );
+            }
+            $fields->addFieldsToTab(
+                'Root.Main',
+                [
+                    TextField::create('MainUrl', 'Main URL'),
+                    TextField::create('MainUrl', 'Main URL'),
+                    TextField::create('OtherUrls', 'Other Urls')
+                        ->setDescription('Separate by comma - e.g. new.mysite.com, otherurl.com, etc ...'),
+                    ReadonlyField::create('HasBeenSent', 'Sent', $this->dbObject('Sent')->Nice()),
+                    ReadonlyField::create('Created'),
+                    ReadonlyField::create('Editor Email', 'Editor Email', $this->Editor()->Email),
+                    ReadonlyField::create('LastEdited'),
+                ]
+            );
+            $fields->addFieldsToTab(
+                'Root.Output',
+                [
+                    ReadonlyField::create('SendCode'),
+                    ReadonlyField::create('ResponseCode'),
+                    LiteralField::create(
+                        'Output',
+                        '<h2>Data</h2><pre>' . $this->Data . '</pre>'
+                    ),
+                ]
+            );
+        } else {
+            $fields->removeByName(
+                [
+                    'SendNow',
+                    'HasError',
+                ]
+            );
+        }
         return $fields;
+    }
+
+    public function ViewLink()
+    {
+        if ($this->ResponseCode) {
+            return 'https://check.silverstripe-webdevelopment.com/report/view/' . $this->ResponseCode . '/';
+        }
     }
 
     protected function send()
     {
-        $this->SendCode = hash('ripemd160', $this->Data);
-        $this->ReceiptCode = $this->send();
-    }
+        if ($this->SendNow && ! $this->Sent) {
+            //create final data
+            $this->SendNow = false;
+            $this->write();
 
-    protected function curlRequest()
-    {
-        $sender = new SendData();
-        $sender->setData($this->Data);
-        $sender->send();
+            // mark as sent
+            $this->Sent = true;
+            $this->SendCode = hash('ripemd160', $this->Data);
+            $this->write();
+
+            //send data
+            $sender = new SendData();
+            $sender->setData($this->Data);
+
+            //confirm outcome
+            $this->ReceiptCode = $sender->send();
+            $this->write();
+        }
     }
 
     /**
@@ -219,6 +286,8 @@ class HealthCheckProvider extends DataObject
     {
         $base = Director::absoluteBaseURL();
         $base = str_replace('https://', '', $base);
+        $base = rtrim($base, '/');
+
         return str_replace('http://', '', $base);
     }
 
@@ -234,11 +303,9 @@ class HealthCheckProvider extends DataObject
             'Editor' => $this->Editor()->Email,
             'Data' => [],
         ];
-        $list = HealthCheckItemProvider::get()->filter(['Enabled' => true]);
+        $list = $this->HealthCheckItemProviders()->filter(['Include' => true]);
         foreach ($list as $item) {
-            if ($item->getIsSend()) {
-                $rawData['Data'][$item->RunnerClassName] = $item->findAnswer($this);
-            }
+            $rawData['Data'][$item->RunnerClassName] = $item->findAnswer($this);
         }
         return $rawData;
     }

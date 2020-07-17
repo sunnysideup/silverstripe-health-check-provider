@@ -6,6 +6,7 @@ use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
+use Sunnysideup\HealthCheckProvider\Model\HealthCheckItemProvider;
 
 class HealthCheckItemRunner
 {

@@ -12,7 +12,7 @@ class PagesOnSite extends HealthCheckItemRunner
         return SiteTree::get()->count();
     }
 
-    protected function nameSpacesRequired()
+    protected function nameSpacesRequired(): array
     {
         return [
             'SilverStripe\\Reports',

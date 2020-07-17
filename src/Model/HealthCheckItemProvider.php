@@ -1,6 +1,6 @@
 <?php
 
-namespace Sunnysideup\HealthCheck\Model;
+namespace Sunnysideup\HealthCheckProvider\Model;
 
 use SilverStripe\Core\ClassInfo;
 
@@ -14,11 +14,10 @@ use SilverStripe\ORM\Filters\PartialMatchFilter;
 
 
 
-use Sunnysideup\HealthCheck\Admin\HealthCheckAdmin;
-use Sunnysideup\HealthCheck\Checks\HealthCheckItemRunner;
-use Sunnysideup\HealthCheck\Interfaces\HealthCheckItemInterface;
+use Sunnysideup\HealthCheckProvider\Admin\HealthCheckAdmin;
+use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
-class HealthCheckItemProvider extends DataObject implements HealthCheckItemInterface
+class HealthCheckItemProvider extends DataObject
 {
     protected $runner = null;
 
@@ -41,7 +40,7 @@ class HealthCheckItemProvider extends DataObject implements HealthCheckItemInter
     ];
 
     private static $db = [
-        'Send' => 'Boolean',
+        'Include' => 'Boolean',
         'RunnerClassName' => 'Varchar(255)',
     ];
 
@@ -49,8 +48,12 @@ class HealthCheckItemProvider extends DataObject implements HealthCheckItemInter
     ### Further DB Field Details
     #######################
 
+    private static $defaults = [
+        'Include' => true,
+    ];
+
     private static $searchable_fields = [
-        'Send' => ExactMatchFilter::class,
+        'Include' => ExactMatchFilter::class,
         'RunnerClassName' => PartialMatchFilter::class,
     ];
 
@@ -59,16 +62,14 @@ class HealthCheckItemProvider extends DataObject implements HealthCheckItemInter
     #######################
 
     private static $field_labels = [
-        'Send' => 'Are you happy to send this?',
+        'Include' => 'Are you happy to send this?',
         'RunnerClassName' => 'Code',
     ];
 
-    // private static $field_labels_right = [];
-
     private static $summary_fields = [
-        'RunnerClassName' => 'Code',
-        'Send.Nice' => 'Send',
-        'CalculatedAnswer' => 'Data',
+        'Title' => 'Code',
+        'Include.Nice' => 'Include',
+        'AnswerSummary' => 'Data',
     ];
 
     #######################
@@ -76,7 +77,7 @@ class HealthCheckItemProvider extends DataObject implements HealthCheckItemInter
     #######################
 
     private static $casting = [
-        'CalculatedAnswer' => 'Text',
+        'AnswerSummary' => 'HTMLText',
         'Title' => 'Varchar',
     ];
 
@@ -97,14 +98,17 @@ class HealthCheckItemProvider extends DataObject implements HealthCheckItemInter
         return DBField::create_field('HTMLText', ClassInfo::shortName($this->RunnerClassName));
     }
 
+    public function getAnswerSummary()
+    {
+        $data = $this->findAnswer();
+        $data = $this->summariseData($data);
+
+        return DBField::create_field('HTMLText', '<pre>' . json_encode($data, JSON_PRETTY_PRINT) . '</pre>');
+    }
+
     #######################
     ### can Section
     #######################
-
-    public function canEdit($member = null)
-    {
-        return false;
-    }
 
     public function canCreate($member = null, $context = null)
     {
@@ -125,7 +129,7 @@ class HealthCheckItemProvider extends DataObject implements HealthCheckItemInter
         parent::requireDefaultRecords();
         foreach (HealthCheckItemProvider::get() as $item) {
             if (! class_exists($item->RunnerClassName)) {
-                DB::alteration_message('Deleting superfluous: ' . $item->getDefaultQuestion(), 'deleted');
+                DB::alteration_message('Deleting superfluous: ' . $item->getTitle(), 'deleted');
                 $item->delete();
             }
         }
@@ -137,7 +141,7 @@ class HealthCheckItemProvider extends DataObject implements HealthCheckItemInter
             $obj = DataObject::get_one(HealthCheckItemProvider::class, $filter);
             if (! $obj) {
                 $obj = HealthCheckItemProvider::create($filter);
-                DB::alteration_message('Creating Health Check: ' . $obj->getDefaultQuestion(), 'created');
+                DB::alteration_message('Creating Health Check: ' . $obj->getTitle(), 'created');
             }
             $id = $obj->write();
             if (! $id) {
@@ -147,17 +151,14 @@ class HealthCheckItemProvider extends DataObject implements HealthCheckItemInter
         }
         $badOnes = HealthCheckItemProvider::get()->where('HealthCheckItemProvider.ID NOT IN (' . implode(',', $ids) . ')');
         foreach ($badOnes as $badOne) {
-            DB::alteration_message('Deleting superfluous: ' . $badOne->getDefaultQuestion(), 'deleted');
+            DB::alteration_message('Deleting superfluous: ' . $badOne->getTitle(), 'deleted');
             $badOne->delete();
         }
     }
 
     public function getCMSFields()
     {
-        $fields = parent::getCMSFields();
-        $this->addRightTitles($fields);
-
-        return $fields;
+        return parent::getCMSFields();
     }
 
     public function getRunner()
@@ -173,10 +174,37 @@ class HealthCheckItemProvider extends DataObject implements HealthCheckItemInter
 
     public function findAnswer(): array
     {
+        try {
+            $answer = $this->getRunner()->getCalculatedAnswer();
+        } catch (\Exception $exception) {
+            $answer = 'Caught exception: ' . $exception->getMessage();
+        }
         return [
-            'Answer' => $this->getRunner()->getCalculatedAnswer(),
+            'Answer' => $answer,
             'IsInstalled' => $this->getRunner()->getIsInstalled(),
             'IsEnabled' => $this->getRunner()->getIsEnabled(),
         ];
+    }
+
+    private function summariseData($mixed)
+    {
+        if (is_string($mixed)) {
+            if (strlen($mixed) > 50) {
+                return substr($mixed, 0, 50) . '...';
+            }
+        } elseif (is_array($mixed)) {
+            $returnArray = [];
+            $count = 0;
+            foreach ($mixed as $key => $item) {
+                $count++;
+                $returnArray[$this->summariseData($key)] = $this->summariseData($item);
+                if ($count > 3) {
+                    $returnArray[] = ' + ' . count($mixed) . ' MORE ...';
+                    break;
+                }
+            }
+            return $returnArray;
+        }
+        return $mixed;
     }
 }

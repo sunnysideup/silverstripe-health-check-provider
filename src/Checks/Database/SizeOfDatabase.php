@@ -12,7 +12,7 @@ class SizeOfDatabase extends HealthCheckItemRunner
         $rows = DB::query('SHOW TABLE STATUS;');
         $array = [];
         foreach ($rows as $row) {
-            $array = $row;
+            $array[] = $row;
         }
 
         return $array;
