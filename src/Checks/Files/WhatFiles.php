@@ -21,7 +21,11 @@ class WhatFiles extends HealthCheckItemRunner
         // DIRECTORY_SEPARATOR . '.',
     ];
 
+    // anything over half a megabyte may needs attention...
+    private static $min_size_in_bytes = ((1024 * 1024) / 2);
+
     protected $allowedExtension = [];
+
 
     /**
      * get a list of files in the asset path
@@ -52,7 +56,7 @@ class WhatFiles extends HealthCheckItemRunner
             $count++;
             $size = filesize($path);
             $sizeSum += $size;
-            if($size > $this->Config()->get('minimum_size') || $this->invalidExtension($path)) {
+            if($size > $this->Config()->get('min_size_in_bytes') || $this->invalidExtension($path)) {
                 $shortPath = str_replace($this->getAssetPath(), '', $path);
                 $finalArray[$path] = $shortPath;
             }
