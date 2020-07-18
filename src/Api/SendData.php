@@ -30,6 +30,8 @@ class SendData
             # Setup request to send json via POST.
             curl_setopt($curl, CURLOPT_POSTFIELDS, $this->data);
             curl_setopt($curl, CURLOPT_HTTPHEADER, ['Content-Type:application/json']);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, true);
 
             # Return response instead of printing.
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);

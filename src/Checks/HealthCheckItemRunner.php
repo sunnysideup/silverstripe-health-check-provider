@@ -31,17 +31,17 @@ class HealthCheckItemRunner
         return true;
     }
 
+    public function getIsEnabled(): bool
+    {
+        return $this->getIsInstalled();
+    }
+
     /**
      * @return mixed
      */
     public function getCalculatedAnswer()
     {
         return '';
-    }
-
-    public function getIsEnabled(): bool
-    {
-        return true;
     }
 
     protected function nameSpacesRequired(): array

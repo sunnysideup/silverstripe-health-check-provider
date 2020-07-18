@@ -9,23 +9,31 @@ use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class DevBuild extends HealthCheckItemRunner
 {
+    private static $include_dev_build = false;
+
     public function getCalculatedAnswer(): string
     {
-        $db = new DatabaseAdmin();
-        $start = microtime(true);
-        $answer = '';
-        try {
-            $db->doBuild(true, false, false);
-            $end = microtime(true) - $start;
+        if ($this->Config()->get('include_dev_build')) {
+            $db = new DatabaseAdmin();
+            $start = microtime(true);
+            $answer = '';
+            try {
+                $db->doBuild(true, false, false);
+                $end = microtime(true) - $start;
 
-            $answer = sprintf(
-                'Completed in %s seconds',
-                round($end, 2)
-            );
-        } catch (Exception $e) {
-            $answer = 'Error retrieving data: ' . $e->getMessage();
+                $answer = sprintf(
+                    'Completed in %s seconds',
+                    round($end, 2)
+                );
+            } catch (Exception $e) {
+                $answer = 'Error retrieving data: ' . $e->getMessage();
+            }
+
+            return $answer;
         }
-
-        return $answer;
+        return '
+                Feature not enabled on host.
+                Please set DevBuild::$include_dev_build = true in yml config files.
+            ';
     }
 }

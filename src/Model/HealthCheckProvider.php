@@ -3,6 +3,7 @@
 namespace Sunnysideup\HealthCheckProvider\Model;
 
 use SilverStripe\Control\Director;
+use SilverStripe\Core\ClassInfo;
 use SilverStripe\Forms\CheckboxSetField;
 use SilverStripe\Forms\HTMLReadonlyField;
 use SilverStripe\Forms\LiteralField;
@@ -11,7 +12,6 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
-use SilverStripe\Core\ClassInfo;
 use Sunnysideup\HealthCheckProvider\Api\SendData;
 
 class HealthCheckProvider extends DataObject

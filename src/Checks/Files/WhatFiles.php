@@ -56,12 +56,17 @@ class WhatFiles extends HealthCheckItemRunner
             $size = filesize($path);
             $sizeSum += $size;
             if ($size > $this->Config()->get('min_size_in_bytes') || $this->invalidExtension($path)) {
-                $shortPath = str_replace($this->getAssetPath(), '', $path);
-                $finalArray[$path] = $shortPath;
+                if (strpos($path, $this->getAssetPath()) === 0) {
+                    $shortPath = str_replace($this->getAssetPath(), '', $path);
+                    $finalArray[(string) $shortPath] = $size;
+                } else {
+                    $finalArray[(string) $path] = $size;
+                }
             }
         }
 
         return [
+            'Path' => $this->getAssetPath(),
             'Files' => $finalArray,
             'Count' => $count,
             'Size' => $sizeSum,
