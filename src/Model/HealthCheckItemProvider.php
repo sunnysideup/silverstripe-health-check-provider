@@ -83,16 +83,6 @@ class HealthCheckItemProvider extends DataObject
 
     private static $primary_model_admin_class = HealthCheckAdmin::class;
 
-    public function i18n_singular_name()
-    {
-        return $this->Question . ' ' . _t(self::class . '.SINGULAR_NAME', 'Piece of Info');
-    }
-
-    public function i18n_plural_name()
-    {
-        return $this->Question . ' ' . _t(self::class . '.PLURAL_NAME', 'Pieces of Info');
-    }
-
     public function getTitle()
     {
         return DBField::create_field('HTMLText', ClassInfo::shortName($this->RunnerClassName));
@@ -181,8 +171,8 @@ class HealthCheckItemProvider extends DataObject
         }
         return [
             'Answer' => $answer,
-            'IsInstalled' => $this->getRunner()->getIsInstalled(),
-            'IsEnabled' => $this->getRunner()->getIsEnabled(),
+            'IsInstalled' => $this->getRunner()->IsInstalled(),
+            'IsEnabled' => $this->getRunner()->IsEnabled(),
         ];
     }
 

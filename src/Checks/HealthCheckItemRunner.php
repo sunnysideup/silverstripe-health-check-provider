@@ -21,7 +21,7 @@ class HealthCheckItemRunner
         $this->healthCheckItemProvider = $healthCheckItemProvider;
     }
 
-    public function getIsInstalled(): bool
+    public function IsInstalled(): bool
     {
         foreach ($this->nameSpacesRequired() as $nameSpace) {
             if (! $this->nameSpaceExists($nameSpace)) {
@@ -31,9 +31,9 @@ class HealthCheckItemRunner
         return true;
     }
 
-    public function getIsEnabled(): bool
+    public function IsEnabled(): bool
     {
-        return $this->getIsInstalled();
+        return $this->IsInstalled();
     }
 
     /**

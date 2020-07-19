@@ -288,9 +288,7 @@ class HealthCheckProvider extends DataObject
      */
     protected function getSiteURL(): string
     {
-        $base = Director::absoluteBaseURL();
-        $base = str_replace('https://', '', $base);
-        $base = str_replace('http://', '', $base);
+        $base = Director::host();
 
         return rtrim($base, '/');
     }

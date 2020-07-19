@@ -15,10 +15,12 @@ class IsTherePageNotFoundPage extends HealthCheckItemRunner
         $pages = ErrorPage::get()->filter(['ErrorCode' => $this->Config()->get('error_code')]);
         foreach ($pages as $page) {
             $array[$page->ID] = [
+                'Title' => $page->Title,
                 'CMSEditLink' => $page->CMSEditLink(),
                 'Link' => $page->Link(),
                 'IsPublished' => $page->IsPublished(),
                 'HtmlPageExists' => $this->htmlPageExists(),
+                'HtmlLink' => $this->htmlLink(),
             ];
         }
 
@@ -27,7 +29,12 @@ class IsTherePageNotFoundPage extends HealthCheckItemRunner
 
     protected function htmlPageExists(): bool
     {
-        return file_exists(ASSETS_DIR . '/error-' . $this->Config()->get('error_code') . '.html');
+        return file_exists($this->htmlLink());
+    }
+
+    protected function htmlLink(): string
+    {
+        return ASSETS_DIR . '/error-' . $this->Config()->get('error_code') . '.html';
     }
 
     protected function nameSpacesRequired(): array
