@@ -2,20 +2,18 @@
 
 namespace Sunnysideup\HealthCheckProvider\Model;
 
+use Exception;
 use SilverStripe\Core\ClassInfo;
 
 use SilverStripe\Core\Injector\Injector;
 
+use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\ORM\Filters\ExactMatchFilter;
 use SilverStripe\ORM\Filters\PartialMatchFilter;
-use SilverStripe\Forms\ReadonlyField;
 
-
-
-use Sunnysideup\HealthCheckProvider\Admin\HealthCheckAdmin;
 use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class HealthCheckItemProvider extends DataObject
@@ -90,14 +88,14 @@ class HealthCheckItemProvider extends DataObject
         return DBField::create_field('HTMLText', $this->getCode());
     }
 
-    public function getCode() : string
+    public function getCode(): string
     {
         return ClassInfo::shortName($this->RunnerClassName);
     }
 
-    public function getCodeNice() : string
+    public function getCodeNice(): string
     {
-        return preg_replace('/([a-z])([A-Z])/s','$1 $2', $this->getCode());
+        return preg_replace('/([a-z])([A-Z])/s', '$1 $2', $this->getCode());
     }
 
     public function getAnswerSummary()
@@ -166,7 +164,7 @@ class HealthCheckItemProvider extends DataObject
         $fields->addFieldsToTab(
             'Root.Main',
             [
-                ReadonlyField::create('CodeNice', 'Code', ),
+                ReadonlyField::create('CodeNice', 'Code'),
                 ReadonlyField::create('AnswerSummary', 'Answer'),
             ]
         );
@@ -189,7 +187,7 @@ class HealthCheckItemProvider extends DataObject
     {
         try {
             $answer = $this->getRunner()->getCalculatedAnswer();
-        } catch (\Exception $exception) {
+        } catch (Exception $exception) {
             $answer = 'Caught exception: ' . $exception->getMessage();
         }
         return [
@@ -220,6 +218,4 @@ class HealthCheckItemProvider extends DataObject
         }
         return $mixed;
     }
-
-
 }

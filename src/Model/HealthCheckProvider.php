@@ -2,11 +2,10 @@
 
 namespace Sunnysideup\HealthCheckProvider\Model;
 
-use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
-use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Control\Director;
-use SilverStripe\Core\ClassInfo;
 use SilverStripe\Forms\CheckboxSetField;
+use SilverStripe\Forms\GridField\GridField;
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
 use SilverStripe\Forms\HTMLReadonlyField;
 use SilverStripe\Forms\LiteralField;
 use SilverStripe\Forms\ReadonlyField;
@@ -14,6 +13,7 @@ use SilverStripe\Forms\TextField;
 use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
+
 use Sunnysideup\HealthCheckProvider\Api\SendData;
 
 class HealthCheckProvider extends DataObject
@@ -259,7 +259,7 @@ class HealthCheckProvider extends DataObject
                         'Data List',
                         HealthCheckItemProvider::get(),
                         GridFieldConfig_RecordEditor::create()
-                    )
+                    ),
                 ]
             );
         } else {
@@ -292,8 +292,7 @@ class HealthCheckProvider extends DataObject
             $this->SendCode = hash('ripemd160', $this->Data);
             $this->write();
 
-
-            if($this->Retrieved) {
+            if ($this->Retrieved) {
                 //todo: make more secure
                 $this->ReceiptCode = $this->SendCode;
             } else {
@@ -362,7 +361,7 @@ class HealthCheckProvider extends DataObject
         $list = HealthCheckItemProvider::get();
         foreach ($list as $item) {
             $shortName = $item->getCode();
-            if(in_array($item->ID, $includeIDList, false)) {
+            if (in_array($item->ID, $includeIDList, false)) {
                 $rawData['Data'][$shortName] = $item->findAnswer($this);
             } else {
                 $rawData['Data'][$shortName] = SELF::NOT_PROVIDED_PHRASE;

@@ -31,7 +31,7 @@ class HealthCheckController extends Controller
         }
 
         $obj = HealthCheckProvider::create();
-        $id = $obj->write();
+        $obj->write();
 
         $obj->Retrieved = true;
         $obj->SendNow = true;
