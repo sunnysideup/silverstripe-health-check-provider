@@ -13,7 +13,7 @@ class WhatFiles extends HealthCheckItemRunner
 {
     protected $allowedExtension = [];
 
-    protected $not_real_file_substrings = [
+    private static $not_real_file_substrings = [
         DIRECTORY_SEPARATOR . '_resampled',
         DIRECTORY_SEPARATOR . '__',
         DIRECTORY_SEPARATOR . '.',
@@ -117,7 +117,7 @@ class WhatFiles extends HealthCheckItemRunner
      */
     protected function excludeFileTest(string $path): bool
     {
-        $listOfItemsToSearchFor = Config::inst()->get(self::class, 'excluded_files');
+        $listOfItemsToSearchFor = $this->Config()->get('excluded_files');
         foreach ($listOfItemsToSearchFor as $test) {
             $pos = strpos($path, $test);
             if ($pos !== false) {
@@ -137,7 +137,7 @@ class WhatFiles extends HealthCheckItemRunner
      */
     protected function excludeFolderTest(string $folderName): bool
     {
-        $listOfItemsToSearchFor = Config::inst()->get(self::class, 'excluded_folders');
+        $listOfItemsToSearchFor = $this->Config()->get('excluded_folders');
         foreach ($listOfItemsToSearchFor as $test) {
             if ($folderName === $test) {
                 return true;
@@ -163,7 +163,7 @@ class WhatFiles extends HealthCheckItemRunner
 
     protected function isCountableFile($path): bool
     {
-        $listOfItemsToSearchFor = Config::inst()->get(self::class, 'not_real_file_substrings');
+        $listOfItemsToSearchFor = $this->Config()->get('not_real_file_substrings');
         foreach ($listOfItemsToSearchFor as $test) {
             if (strpos($path, $test)) {
                 return false;
