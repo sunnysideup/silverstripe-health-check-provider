@@ -58,7 +58,7 @@ class WhatFiles extends HealthCheckItemRunner
             if ($this->excludeFolderTest($folderName)) {
                 continue;
             }
-            if ($this->isCountableFile()) {
+            if ($this->isCountableFile($path)) {
                 $count++;
             }
             $size = filesize($path);
