@@ -10,6 +10,10 @@ class HealthCheckController extends Controller
 {
     private static $url_segment = 'health-check-provider';
 
+    private static $allowed_ips = [
+        '127.0.0.1',
+    ];
+
     private static $allowed_actions = [
         'provide' => '->canProvide',
     ];
@@ -20,7 +24,10 @@ class HealthCheckController extends Controller
             return $this->httpError(403, 'No API key provided');
         }
         if ($request->param('ID') !== Environment::getEnv('SS_HEALTH_CHECK_PROVIDER_API_KEY')) {
-            return $this->httpError(403, 'Api key does not match');
+            return $this->httpError(403, 'Api key ' . $request->param('ID') . ' does not match');
+        }
+        if (! in_array($request->getIp(), $this->Config()->get('allowed_ips'), true)) {
+            return $this->httpError(403, 'Ip not allowed: ' . $request->getIp());
         }
 
         $obj = HealthCheckProvider::create();
@@ -36,7 +43,6 @@ class HealthCheckController extends Controller
 
     protected function canProvide(): bool
     {
-        return Environment::getEnv('SS_HEALTH_CHECK_PROVIDER_API_KEY') ? true : fal;
-        se;
+        return Environment::getEnv('SS_HEALTH_CHECK_PROVIDER_API_KEY') ? true : false;
     }
 }

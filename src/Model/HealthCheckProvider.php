@@ -20,6 +20,8 @@ class HealthCheckProvider extends DataObject
 {
     private const VIEW_URL = 'https://check.silverstripe-webdevelopment.com/report/view/';
 
+    private const NOT_PROVIDED_PHRASE = 'not provided';
+
     #######################
     ### Names Section
     #######################
@@ -178,6 +180,7 @@ class HealthCheckProvider extends DataObject
                 'SendCode',
                 'ReceiptCode',
                 'Sent',
+                'Retrieved',
                 'Data',
                 'EditorID',
             ]
@@ -218,9 +221,9 @@ class HealthCheckProvider extends DataObject
                     [
                         CheckboxSetField::create(
                             'HealthCheckItemProviders',
-                            'Data Points',
+                            'Data Points to be Provided',
                             HealthCheckItemProvider::get()->filter(['Include' => true])->map('ID', 'CodeNice')
-                        ),
+                        )->setDescription('Please untick any data that you prefer not to provide.'),
                     ]
                 );
             }
@@ -232,7 +235,7 @@ class HealthCheckProvider extends DataObject
                     TextField::create('OtherUrls', 'Other Urls')
                         ->setDescription('Separate by comma - e.g. new.mysite.com, otherurl.com, etc ...'),
                     ReadonlyField::create('HasBeenSent', 'Sent', $this->dbObject('Sent')->Nice()),
-                    ReadonlyField::create('Created'),
+                    ReadonlyField::create('HasBeenRetried', 'Retrieved', $this->dbObject('Retrieved')->Nice()),
                     ReadonlyField::create('Editor Email', 'Editor Email', $this->Editor()->Email),
                     ReadonlyField::create('LastEdited'),
                 ]
@@ -254,7 +257,7 @@ class HealthCheckProvider extends DataObject
                     GridField::create(
                         'HealthCheckItemProvidersList',
                         'Data List',
-                        $this->HealthCheckItemProviders(),
+                        HealthCheckItemProvider::get(),
                         GridFieldConfig_RecordEditor::create()
                     )
                 ]
@@ -291,7 +294,8 @@ class HealthCheckProvider extends DataObject
 
 
             if($this->Retrieved) {
-
+                //todo: make more secure
+                $this->ReceiptCode = $this->SendCode;
             } else {
                 //send data
                 $sender = new SendData();
@@ -352,10 +356,17 @@ class HealthCheckProvider extends DataObject
             ],
             'Data' => [],
         ];
-        $list = $this->HealthCheckItemProviders()->filter(['Include' => true]);
+        $includeIDList = $this->HealthCheckItemProviders()
+            ->filter(['Include' => true])
+            ->column('ID');
+        $list = HealthCheckItemProvider::get();
         foreach ($list as $item) {
             $shortName = $item->getCode();
-            $rawData['Data'][$shortName] = $item->findAnswer($this);
+            if(in_array($item->ID, $includeIDList, false)) {
+                $rawData['Data'][$shortName] = $item->findAnswer($this);
+            } else {
+                $rawData['Data'][$shortName] = SELF::NOT_PROVIDED_PHRASE;
+            }
         }
         return $rawData;
     }
