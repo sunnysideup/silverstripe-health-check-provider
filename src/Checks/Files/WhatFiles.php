@@ -58,7 +58,7 @@ class WhatFiles extends HealthCheckItemRunner
             if ($this->excludeFolderTest($folderName)) {
                 continue;
             }
-            if($this->isCountableFile()) {
+            if ($this->isCountableFile()) {
                 $count++;
             }
             $size = filesize($path);
@@ -161,7 +161,7 @@ class WhatFiles extends HealthCheckItemRunner
         return false;
     }
 
-    protected function isCountableFile($path) : bool
+    protected function isCountableFile($path): bool
     {
         $listOfItemsToSearchFor = Config::inst()->get(self::class, 'not_real_file_substrings');
         foreach ($listOfItemsToSearchFor as $test) {
