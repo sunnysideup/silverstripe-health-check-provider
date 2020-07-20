@@ -62,7 +62,7 @@ class HealthCheckItemRunner
         return false;
     }
 
-    protected function turnPagesIntoArray(SS_List $pages) : array
+    protected function turnPagesIntoArray(SS_List $pages): array
     {
         $array = [];
         foreach ($pages as $page) {
@@ -78,5 +78,4 @@ class HealthCheckItemRunner
 
         return $array;
     }
-
 }

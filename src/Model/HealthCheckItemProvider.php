@@ -11,6 +11,7 @@ use SilverStripe\ORM\DB;
 use SilverStripe\ORM\FieldType\DBField;
 use SilverStripe\ORM\Filters\ExactMatchFilter;
 use SilverStripe\ORM\Filters\PartialMatchFilter;
+use SilverStripe\Forms\ReadonlyField;
 
 
 
@@ -64,10 +65,11 @@ class HealthCheckItemProvider extends DataObject
     private static $field_labels = [
         'Include' => 'Are you happy to send this?',
         'RunnerClassName' => 'Code',
+        'HealthCheckProviders' => 'Reports',
     ];
 
     private static $summary_fields = [
-        'Title' => 'Code',
+        'CodeNice' => 'Code',
         'Include.Nice' => 'Include',
         'AnswerSummary' => 'Data',
     ];
@@ -79,13 +81,23 @@ class HealthCheckItemProvider extends DataObject
     private static $casting = [
         'AnswerSummary' => 'HTMLText',
         'Title' => 'Varchar',
+        'Code' => 'Varchar',
+        'CodeNice' => 'Varchar',
     ];
-
-    private static $primary_model_admin_class = HealthCheckAdmin::class;
 
     public function getTitle()
     {
-        return DBField::create_field('HTMLText', ClassInfo::shortName($this->RunnerClassName));
+        return DBField::create_field('HTMLText', $this->getCode());
+    }
+
+    public function getCode() : string
+    {
+        return ClassInfo::shortName($this->RunnerClassName);
+    }
+
+    public function getCodeNice() : string
+    {
+        return preg_replace('/([a-z])([A-Z])/s','$1 $2', $this->getCode());
     }
 
     public function getAnswerSummary()
@@ -148,7 +160,18 @@ class HealthCheckItemProvider extends DataObject
 
     public function getCMSFields()
     {
-        return parent::getCMSFields();
+        $fields = parent::getCMSFields();
+        $fields->removeByName('HealthCheckProviders');
+        $fields->removeByName('RunnerClassName');
+        $fields->addFieldsToTab(
+            'Root.Main',
+            [
+                ReadonlyField::create('CodeNice', 'Code', ),
+                ReadonlyField::create('AnswerSummary', 'Answer'),
+            ]
+        );
+
+        return $fields;
     }
 
     public function getRunner()
@@ -197,4 +220,6 @@ class HealthCheckItemProvider extends DataObject
         }
         return $mixed;
     }
+
+
 }

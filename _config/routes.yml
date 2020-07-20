@@ -1,0 +1,6 @@
+---
+Name: healthcheckprovider_routes
+---
+SilverStripe\Control\Director:
+  rules:
+    'health-check-provider//$Action/$ID/$OtherID': '%$Sunnysideup\HealthCheckProvider\Control\HealthCheckController.CustomClass'

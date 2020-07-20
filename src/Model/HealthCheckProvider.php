@@ -2,6 +2,8 @@
 
 namespace Sunnysideup\HealthCheckProvider\Model;
 
+use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
+use SilverStripe\Forms\GridField\GridField;
 use SilverStripe\Control\Director;
 use SilverStripe\Core\ClassInfo;
 use SilverStripe\Forms\CheckboxSetField;
@@ -37,6 +39,7 @@ class HealthCheckProvider extends DataObject
         'OtherUrls' => 'Text',
         'SendNow' => 'Boolean',
         'Sent' => 'Boolean',
+        'Retrieved' => 'Boolean',
         'SendCode' => 'Varchar',
         'ReceiptCode' => 'Varchar',
         'HasError' => 'Boolean',
@@ -63,14 +66,17 @@ class HealthCheckProvider extends DataObject
     ### Field Names and Presentation Section
     #######################
 
-    private static $field_labels_right = [
+    private static $field_labels = [
         'SendNow' => 'Send now?',
         'Sent' => 'Has been sent',
+        'Retrieved' => 'Has been retrieved',
+        'HealthCheckItemProviders' => 'Pieces of Info',
     ];
 
     private static $summary_fields = [
         'Title' => 'Health Report Data',
         'Sent.Nice' => 'Sent',
+        'Retrieved.Nice' => 'Retrieved',
         'HasError.Nice' => 'Error',
         'Editor.Title' => 'Editor',
     ];
@@ -136,7 +142,7 @@ class HealthCheckProvider extends DataObject
         if ($this->Sent) {
             $this->HasError = $this->SendCode === $this->ReceiptCode ? false : true;
         } else {
-            $this->Data = json_encode($this->retrieveDataInner(), JSON_PRETTY_PRINT);
+            $this->Data = json_encode($this->retrieveDataInner());
         }
     }
 
@@ -148,10 +154,10 @@ class HealthCheckProvider extends DataObject
                 $this->HealthCheckItemProviders()->add($item);
             }
             register_shutdown_function([$this, 'write']);
+        } else {
+            //only triggers when ready!
+            $this->send();
         }
-
-        //only triggers when ready!
-        $this->send();
     }
 
     #######################
@@ -213,7 +219,7 @@ class HealthCheckProvider extends DataObject
                         CheckboxSetField::create(
                             'HealthCheckItemProviders',
                             'Data Points',
-                            HealthCheckItemProvider::get()->filter(['Include' => true])->map()
+                            HealthCheckItemProvider::get()->filter(['Include' => true])->map('ID', 'CodeNice')
                         ),
                     ]
                 );
@@ -238,8 +244,19 @@ class HealthCheckProvider extends DataObject
                     ReadonlyField::create('ResponseCode'),
                     LiteralField::create(
                         'Output',
-                        '<h2>Data</h2><pre>' . $this->Data . '</pre>'
+                        '<h2>Data</h2><pre>' . json_encode(json_decode($this->Data), JSON_PRETTY_PRINT) . '</pre>'
                     ),
+                ]
+            );
+            $fields->addFieldsToTab(
+                'Root.PiecesOfInfo',
+                [
+                    GridField::create(
+                        'HealthCheckItemProvidersList',
+                        'Data List',
+                        $this->HealthCheckItemProviders(),
+                        GridFieldConfig_RecordEditor::create()
+                    )
                 ]
             );
         } else {
@@ -260,7 +277,33 @@ class HealthCheckProvider extends DataObject
         }
     }
 
-    protected function send()
+    public function send()
+    {
+        if ($this->SendNow && ! $this->Sent) {
+            //create final data
+            $this->SendNow = false;
+            $this->write();
+
+            // mark as sent
+            $this->Sent = true;
+            $this->SendCode = hash('ripemd160', $this->Data);
+            $this->write();
+
+
+            if($this->Retrieved) {
+
+            } else {
+                //send data
+                $sender = new SendData();
+                $sender->setData($this->Data);
+                //confirm outcome
+                $this->ReceiptCode = $sender->send();
+            }
+            $this->write();
+        }
+    }
+
+    public function retrieve()
     {
         if ($this->SendNow && ! $this->Sent) {
             //create final data
@@ -311,7 +354,7 @@ class HealthCheckProvider extends DataObject
         ];
         $list = $this->HealthCheckItemProviders()->filter(['Include' => true]);
         foreach ($list as $item) {
-            $shortName = ClassInfo::shortName($item->RunnerClassName);
+            $shortName = $item->getCode();
             $rawData['Data'][$shortName] = $item->findAnswer($this);
         }
         return $rawData;

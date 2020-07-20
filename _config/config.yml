@@ -1,3 +1,6 @@
 ---
 Name: healthcheckprovider
 ---
+SilverStripe\Core\Injector\Injector:
+  Sunnysideup\HealthCheckProvider\Control\HealthCheckController.CustomClass:
+    class: Sunnysideup\HealthCheckProvider\Control\HealthCheckController
