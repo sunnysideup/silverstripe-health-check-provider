@@ -13,6 +13,12 @@ class WhatFiles extends HealthCheckItemRunner
 {
     protected $allowedExtension = [];
 
+    protected $not_real_file_substrings = [
+        DIRECTORY_SEPARATOR . '_resampled',
+        DIRECTORY_SEPARATOR . '__',
+        DIRECTORY_SEPARATOR . '.',
+    ];
+
     private static $excluded_folders = [];
 
     private static $excluded_files = [
@@ -52,7 +58,9 @@ class WhatFiles extends HealthCheckItemRunner
             if ($this->excludeFolderTest($folderName)) {
                 continue;
             }
-            $count++;
+            if($this->isCountableFile()) {
+                $count++;
+            }
             $size = filesize($path);
             $sizeSum += $size;
             if ($size > $this->Config()->get('min_size_in_bytes') || $this->invalidExtension($path)) {
@@ -68,7 +76,10 @@ class WhatFiles extends HealthCheckItemRunner
         return [
             'Path' => $this->getAssetPath(),
             'Files' => $finalArray,
-            'Count' => $count,
+            'Count' => [
+                'FileSystem' => $count,
+                'DB' => File::get()->count(),
+            ],
             'Size' => $sizeSum,
         ];
     }
@@ -148,5 +159,17 @@ class WhatFiles extends HealthCheckItemRunner
             return true;
         }
         return false;
+    }
+
+    protected function isCountableFile($path) : bool
+    {
+        $listOfItemsToSearchFor = Config::inst()->get(self::class, 'not_real_file_substrings');
+        foreach ($listOfItemsToSearchFor as $test) {
+            if (strpos($path, $test)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 }
