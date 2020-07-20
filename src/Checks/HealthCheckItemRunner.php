@@ -6,6 +6,7 @@ use SilverStripe\Core\ClassInfo;
 use SilverStripe\Core\Config\Configurable;
 use SilverStripe\Core\Extensible;
 use SilverStripe\Core\Injector\Injectable;
+use SilverStripe\ORM\SS_List;
 use Sunnysideup\HealthCheckProvider\Model\HealthCheckItemProvider;
 
 class HealthCheckItemRunner
@@ -60,4 +61,22 @@ class HealthCheckItemRunner
         }
         return false;
     }
+
+    protected function turnPagesIntoArray(SS_List $pages) : array
+    {
+        $array = [];
+        foreach ($pages as $page) {
+            if ($page->IsPublished()) {
+                $array[$page->ID] = [
+                    'ID' => $page->ID,
+                    'MenuTitle' => $page->MenuTitle,
+                    'CMSEditLink' => $page->CMSEditLink(),
+                    'Link' => $page->Link(),
+                ];
+            }
+        }
+
+        return $array;
+    }
+
 }

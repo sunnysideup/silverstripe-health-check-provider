@@ -17,15 +17,10 @@ class ContactForms extends HealthCheckItemRunner
         foreach ($classesToCheck as $className) {
             if (class_exists($className)) {
                 $pages = $className::get();
-                foreach ($pages as $page) {
-                    if ($page->IsPublished()) {
-                        $listOfContactFormLinks[$page->ID] = [
-                            'ID' => $page->ID,
-                            'CMSEditLink' => $page->CMSEditLink(),
-                            'Link' => $page->Link(),
-                        ];
-                    }
-                }
+                $listOfContactFormLinks = array_merge(
+                    $listOfContactFormLinks,
+                    $this->turnPagesIntoArray($pages)
+                );
             }
         }
         return array_values($listOfContactFormLinks);
