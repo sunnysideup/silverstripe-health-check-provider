@@ -130,7 +130,7 @@ class HealthCheckProvider extends DataObject
         parent::onBeforeWrite();
         if (! $this->EditorID) {
             $user = Security::getCurrentUser();
-            if($user) {
+            if ($user) {
                 $this->EditorID = Security::getCurrentUser()->ID;
             }
         }

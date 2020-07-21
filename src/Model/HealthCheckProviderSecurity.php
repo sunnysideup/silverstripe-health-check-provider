@@ -86,26 +86,6 @@ class HealthCheckProviderSecurity extends DataObject
         return (int) $obj->EditorID;
     }
 
-    protected static function get_object_from_filter(string $key, string $ip) : HealthCheckProviderSecurity
-    {
-        $filter = [
-            'Secret' => $key,
-            'IpAddress' => $ip,
-        ];
-
-        //we make sure we get the last one! Just in case there is more one.
-        $obj = HealthCheckProviderSecurity::get()->filter($filter)->last();
-        if (! $obj) {
-            $obj = HealthCheckProviderSecurity::create($filter);
-        }
-        $obj->AccessCount++;
-
-        $obj->write();
-
-        return $obj;
-
-    }
-
     /**
      * casted variable
      * @return string
@@ -143,7 +123,7 @@ class HealthCheckProviderSecurity extends DataObject
         parent::onBeforeWrite();
         if (! $this->EditorID) {
             $user = Security::getCurrentUser();
-            if($user) {
+            if ($user) {
                 $this->EditorID = Security::getCurrentUser()->ID;
             }
         }
@@ -179,5 +159,24 @@ class HealthCheckProviderSecurity extends DataObject
         );
 
         return $fields;
+    }
+
+    protected static function get_object_from_filter(string $key, string $ip): HealthCheckProviderSecurity
+    {
+        $filter = [
+            'Secret' => $key,
+            'IpAddress' => $ip,
+        ];
+
+        //we make sure we get the last one! Just in case there is more one.
+        $obj = HealthCheckProviderSecurity::get()->filter($filter)->last();
+        if (! $obj) {
+            $obj = HealthCheckProviderSecurity::create($filter);
+        }
+        $obj->AccessCount++;
+
+        $obj->write();
+
+        return $obj;
     }
 }
