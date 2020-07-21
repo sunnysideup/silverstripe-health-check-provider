@@ -5,6 +5,7 @@ namespace Sunnysideup\HealthCheckProvider\Control;
 use SilverStripe\Control\Controller;
 use SilverStripe\Core\Environment;
 use Sunnysideup\HealthCheckProvider\Model\HealthCheckProvider;
+use Sunnysideup\HealthCheckProvider\Model\HealthCheckProviderSecurity;
 
 class HealthCheckController extends Controller
 {
@@ -18,7 +19,7 @@ class HealthCheckController extends Controller
     public function provide($request)
     {
         $check = $this->checkSecurity($request);
-        if ($check !== 'all-good') {
+        if($check !== 'all-good') {
             return $check;
         }
 
@@ -30,16 +31,16 @@ class HealthCheckController extends Controller
     protected function confirmreceipt($request)
     {
         $check = $this->checkSecurity($request);
-        if ($check !== 'all-good') {
+        if($check !== 'all-good') {
             return $check;
         }
         $outcome = $this->recordReceipt($request);
 
         $this->getResponse()->addHeader('Content-type', 'application/json');
-        return '{"Outcome": "' . $outcome . '"}';
+        return '{"Outcome": "'.$outcome.'"}';
     }
 
-    protected function provideData(): string
+    protected function provideData() : string
     {
         $obj = HealthCheckProvider::create();
         $obj->write();
@@ -48,9 +49,10 @@ class HealthCheckController extends Controller
         $obj->write();
 
         return (string) $obj->Data;
+
     }
 
-    protected function recordReceipt($request): string
+    protected function recordReceipt($request) : string
     {
         $id = intval($request->param('ID'));
         $code = $request->param('OtherID');
@@ -58,7 +60,7 @@ class HealthCheckController extends Controller
         $obj->ReceiptCode = $code;
         $obj->Sent = true;
         $obj->write();
-        if ($obj->getCodesMatch()) {
+        if($obj->getCodesMatch()) {
             $outcome = 'BAD';
         } else {
             $outcome = 'GOOD';
@@ -73,14 +75,15 @@ class HealthCheckController extends Controller
         $key = $headers['handshake'] ?? '';
         $ip = $request->getIp() ?? '';
         $outcome = HealthCheckProviderSecurity::check($key, $ip);
-        if ($outcome) {
+        if($outcome) {
             return 'all-good';
+        } else {
+            return $this->httpError(403, 'Sorry, we can not provide access.');
         }
-        return $this->httpError(403, 'Sorry, we can not provide access.');
     }
 
     protected function canProvide(): bool
     {
-        return Environment::getEnv('SS_HEALTH_CHECK_PROVIDER_API_KEY') ? true : false;
+        return Environment::getEnv('SS_HEALTH_CHECK_PROVIDER_ALLOW_RETRIEVAL') ? true : false;
     }
 }
