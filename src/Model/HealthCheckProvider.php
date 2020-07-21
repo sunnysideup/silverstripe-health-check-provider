@@ -24,9 +24,9 @@ class HealthCheckProvider extends DataObject
     ### Names Section
     #######################
 
-    private static $singular_name = 'Health Check Data';
+    private static $singular_name = 'Report';
 
-    private static $plural_name = 'Health Check Data Lists';
+    private static $plural_name = 'Reports';
 
     private static $table_name = 'HealthCheckProvider';
 

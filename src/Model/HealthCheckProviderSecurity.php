@@ -12,9 +12,9 @@ class HealthCheckProviderSecurity extends DataObject
     ### Names Section
     #######################
 
-    private static $singular_name = 'Health Check Security';
+    private static $singular_name = 'Security Check';
 
-    private static $plural_name = 'Health Check Security Items';
+    private static $plural_name = 'Security Checks';
 
     private static $table_name = 'HealthCheckProviderSecurity';
 
