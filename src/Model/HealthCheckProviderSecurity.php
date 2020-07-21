@@ -2,39 +2,12 @@
 
 namespace Sunnysideup\HealthCheckProvider\Model;
 
-use SilverStripe\Control\Director;
-use SilverStripe\Forms\CheckboxSetField;
-use SilverStripe\Forms\GridField\GridField;
-use SilverStripe\Forms\GridField\GridFieldConfig_RecordEditor;
-use SilverStripe\Forms\HTMLReadonlyField;
-use SilverStripe\Forms\LiteralField;
-use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\Forms\CheckboxField;
-use SilverStripe\Forms\TextField;
+use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
-use SilverStripe\Security\Member;
-use SilverStripe\Security\Security;
-
-use Sunnysideup\HealthCheckProvider\Api\SendData;
 
 class HealthCheckProviderSecurity extends DataObject
 {
-
-    public static function check($key, $ip) : bool
-    {
-        $filter = [
-            'Secret' => $key,
-            'IPAddress' => $ip,
-        ];
-
-        //we make sure we get the last one!
-        $obj = HealthCheckProviderSecurity::get()->filter($filter)->last();
-        if(! $obj) {
-            $obj = HealthCheckProviderSecurity::create($filter);
-        }
-        return (bool) $obj->Allowed;
-    }
-
     #######################
     ### Names Section
     #######################
@@ -54,6 +27,7 @@ class HealthCheckProviderSecurity extends DataObject
         'IpAddress' => 'Text',
         'Allowed' => 'Boolean',
         'DefinitelyNotOk' => 'Boolean',
+        'AccessCount' => 'Int',
     ];
 
     #######################
@@ -75,9 +49,10 @@ class HealthCheckProviderSecurity extends DataObject
     ];
 
     private static $summary_fields = [
+        'Allowed.Nice' => 'Allow',
         'Secret' => 'Health Report Data',
         'IpAddress' => 'IP',
-        'Allowed.Nice' => 'Allow',
+        'AccessCount' => 'Access Count',
     ];
 
     #######################
@@ -88,21 +63,37 @@ class HealthCheckProviderSecurity extends DataObject
         'Title' => 'Varchar',
     ];
 
+    public static function check($key, $ip): bool
+    {
+        $filter = [
+            'Secret' => $key,
+            'IPAddress' => $ip,
+        ];
+
+        //we make sure we get the last one! Just in case there is more one.
+        $obj = HealthCheckProviderSecurity::get()->filter($filter)->last();
+        if (! $obj) {
+            $obj = HealthCheckProviderSecurity::create($filter);
+        }
+        $obj->AccessCount++;
+        $obj->write();
+        return (bool) $obj->Allowed;
+    }
+
     /**
      * casted variable
      * @return string
      */
     public function getTitle(): string
     {
-        return 'Retrieval attempt from "' . $this->IpAddress.'" using "'.$this->Secret.'" as key';
+        return 'Retrieval attempt from "' . $this->IpAddress . '" using "' . $this->Secret . '" as key';
     }
 
     #######################
     ### can Section
     #######################
 
-
-    public function canCreate($member = null)
+    public function canCreate($member = null, $context = [])
     {
         return false;
     }
@@ -117,8 +108,6 @@ class HealthCheckProviderSecurity extends DataObject
         return $this->DefinitelyNotOk ? false : parent::canEdit($member);
     }
 
-
-
     #######################
     ### write Section
     #######################
@@ -127,7 +116,7 @@ class HealthCheckProviderSecurity extends DataObject
     {
         parent::onBeforeWrite();
         if (! $this->Secret) {
-            $this->Secret = 'Careful: no key set - ' . mt_rand(0,9999999999999999);
+            $this->Secret = 'Careful: no key set - ' . mt_rand(0, 9999999999999999);
         }
         if (! $this->IpAddress) {
             $this->IpAddress = 'Careful: no IP Set';
@@ -137,11 +126,9 @@ class HealthCheckProviderSecurity extends DataObject
         }
     }
 
-
     #######################
     ### CMS Edit Section
     #######################
-
 
     public function getCMSFields()
     {
@@ -151,6 +138,7 @@ class HealthCheckProviderSecurity extends DataObject
             [
                 ReadonlyField::create('Secret', 'Secret Key'),
                 ReadonlyField::create('IpAddress', 'IP'),
+                ReadonlyField::create('AccessCount', 'Access Count'),
                 CheckboxField::create('Allowed', 'Allow this IP with this Key?  If unsure, please double-check!')
                     ->setDescription('Make sure that you are OK with both the key and the IP address to ensure security.'),
                 CheckboxField::create('DefinitelyNotOk', 'Check if you think this is a bad request')

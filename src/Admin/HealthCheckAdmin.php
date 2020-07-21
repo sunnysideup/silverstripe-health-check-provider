@@ -5,6 +5,7 @@ namespace Sunnysideup\HealthCheckProvider\Admin;
 use SilverStripe\Admin\ModelAdmin;
 use Sunnysideup\HealthCheckProvider\Model\HealthCheckItemProvider;
 use Sunnysideup\HealthCheckProvider\Model\HealthCheckProvider;
+use Sunnysideup\HealthCheckProvider\Model\HealthCheckProviderSecurity;
 
 class HealthCheckAdmin extends ModelAdmin
 {

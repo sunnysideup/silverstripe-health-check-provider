@@ -14,8 +14,6 @@ use SilverStripe\ORM\DataObject;
 use SilverStripe\Security\Member;
 use SilverStripe\Security\Security;
 
-use Sunnysideup\HealthCheckProvider\Api\SendData;
-
 class HealthCheckProvider extends DataObject
 {
     private const VIEW_URL = 'https://check.silverstripe-webdevelopment.com/report/view/';
@@ -41,7 +39,6 @@ class HealthCheckProvider extends DataObject
         'OtherUrls' => 'Text',
         'SendNow' => 'Boolean',
         'Sent' => 'Boolean',
-        'Retrieved' => 'Boolean',
         'SendCode' => 'Varchar',
         'ReceiptCode' => 'Varchar',
         'HasError' => 'Boolean',
@@ -71,14 +68,12 @@ class HealthCheckProvider extends DataObject
     private static $field_labels = [
         'SendNow' => 'Send now?',
         'Sent' => 'Has been sent',
-        'Retrieved' => 'Has been retrieved',
         'HealthCheckItemProviders' => 'Pieces of Info',
     ];
 
     private static $summary_fields = [
         'Title' => 'Health Report Data',
         'Sent.Nice' => 'Sent',
-        'Retrieved.Nice' => 'Retrieved',
         'HasError.Nice' => 'Error',
         'Editor.Title' => 'Editor',
     ];
@@ -139,13 +134,20 @@ class HealthCheckProvider extends DataObject
         if (! $this->MainUrl) {
             $this->MainUrl = $this->getSiteURL();
         }
-        if (! $this->Sent) {
-        }
         if ($this->Sent) {
-            $this->HasError = $this->SendCode === $this->ReceiptCode ? false : true;
+            $this->HasError = $this->getCodesMatch() ? false : true;
         } else {
             $this->Data = json_encode($this->retrieveDataInner());
+            $this->SendCode = hash('ripemd160', $this->Data);
         }
+    }
+
+    public function getCodesMatch(): bool
+    {
+        if ($this->Sent) {
+            return $this->SendCode === $this->ReceiptCode;
+        }
+        return true;
     }
 
     public function onAfterWrite()
@@ -178,9 +180,9 @@ class HealthCheckProvider extends DataObject
         $fields->removeByName(
             [
                 'SendCode',
+                'SendNow',
                 'ReceiptCode',
                 'Sent',
-                'Retrieved',
                 'Data',
                 'EditorID',
             ]
@@ -192,11 +194,6 @@ class HealthCheckProvider extends DataObject
                 ]
             );
             if ($this->Sent) {
-                $fields->removeByName(
-                    [
-                        'SendNow',
-                    ]
-                );
                 $viewLink = $this->ViewLink();
                 if ($viewLink) {
                     $fields->addFieldsToTab(
@@ -235,7 +232,6 @@ class HealthCheckProvider extends DataObject
                     TextField::create('OtherUrls', 'Other Urls')
                         ->setDescription('Separate by comma - e.g. new.mysite.com, otherurl.com, etc ...'),
                     ReadonlyField::create('HasBeenSent', 'Sent', $this->dbObject('Sent')->Nice()),
-                    ReadonlyField::create('HasBeenRetried', 'Retrieved', $this->dbObject('Retrieved')->Nice()),
                     ReadonlyField::create('Editor Email', 'Editor Email', $this->Editor()->Email),
                     ReadonlyField::create('LastEdited'),
                 ]
@@ -265,7 +261,6 @@ class HealthCheckProvider extends DataObject
         } else {
             $fields->removeByName(
                 [
-                    'SendNow',
                     'HasError',
                 ]
             );
@@ -289,41 +284,7 @@ class HealthCheckProvider extends DataObject
 
             // mark as sent
             $this->Sent = true;
-            $this->SendCode = hash('ripemd160', $this->Data);
-            $this->write();
 
-            if ($this->Retrieved) {
-                //todo: make more secure
-                $this->ReceiptCode = $this->SendCode;
-            } else {
-                //send data
-                $sender = new SendData();
-                $sender->setData($this->Data);
-                //confirm outcome
-                $this->ReceiptCode = $sender->send();
-            }
-            $this->write();
-        }
-    }
-
-    public function retrieve()
-    {
-        if ($this->SendNow && ! $this->Sent) {
-            //create final data
-            $this->SendNow = false;
-            $this->write();
-
-            // mark as sent
-            $this->Sent = true;
-            $this->SendCode = hash('ripemd160', $this->Data);
-            $this->write();
-
-            //send data
-            $sender = new SendData();
-            $sender->setData($this->Data);
-
-            //confirm outcome
-            $this->ReceiptCode = $sender->send();
             $this->write();
         }
     }

@@ -18,51 +18,53 @@ class HealthCheckController extends Controller
     public function provide($request)
     {
         $check = $this->checkSecurity($request);
-        if($check !== 'all-good') {
+        if ($check !== 'all-good') {
             return $check;
         }
 
         //we are ready!~
         $this->getResponse()->addHeader('Content-type', 'application/json');
-        return $this->ProvideData($request);
+        return $this->provideData();
     }
 
-    protected function confirmreceipt()
+    protected function confirmreceipt($request)
     {
         $check = $this->checkSecurity($request);
-        if($check !== 'all-good') {
+        if ($check !== 'all-good') {
             return $check;
         }
         $outcome = $this->recordReceipt($request);
+
         $this->getResponse()->addHeader('Content-type', 'application/json');
-        return '{"Outcome": "'.$outcome.'"}';
+        return '{"Outcome": "' . $outcome . '"}';
     }
 
-    protected function provideData()
+    protected function provideData(): string
     {
         $obj = HealthCheckProvider::create();
         $obj->write();
 
-        $obj->Retrieved = true;
         $obj->SendNow = true;
         $obj->write();
 
-        return $obj->Data;
-
+        return (string) $obj->Data;
     }
 
-    protected function recordReceipt($request) : sting
+    protected function recordReceipt($request): string
     {
         $id = intval($request->param('ID'));
         $code = $request->param('OtherID');
         $obj = HealthCheck::get()->byID($id);
-        $obj->ResponseCode = $code;
+        $obj->ReceiptCode = $code;
+        $obj->Sent = true;
         $obj->write();
-        if($obj->getHasErrors()) {
+        if ($obj->getCodesMatch()) {
             $outcome = 'BAD';
         } else {
             $outcome = 'GOOD';
         }
+
+        return $outcome;
     }
 
     protected function checkSecurity($request)
@@ -71,11 +73,10 @@ class HealthCheckController extends Controller
         $key = $headers['handshake'] ?? '';
         $ip = $request->getIp() ?? '';
         $outcome = HealthCheckProviderSecurity::check($key, $ip);
-        if($outcome) {
+        if ($outcome) {
             return 'all-good';
-        } else {
-            return $this->httpError(403, 'Sorry, we can not provide access.');
         }
+        return $this->httpError(403, 'Sorry, we can not provide access.');
     }
 
     protected function canProvide(): bool
