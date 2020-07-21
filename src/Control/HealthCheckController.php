@@ -73,7 +73,7 @@ class HealthCheckController extends Controller
     {
         $headers = $request->getHeaders();
         $key = $headers['handshake'] ?? '';
-        $ip = $request->getIp() ?? '';
+        $ip = $request->getIp();
         $outcome = HealthCheckProviderSecurity::check($key, $ip);
         if($outcome) {
             return 'all-good';

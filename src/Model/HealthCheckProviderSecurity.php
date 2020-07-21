@@ -24,7 +24,7 @@ class HealthCheckProviderSecurity extends DataObject
 
     private static $db = [
         'Secret' => 'Varchar(255)',
-        'IpAddress' => 'Text',
+        'IpAddress' => 'Varchar(64)',
         'Allowed' => 'Boolean',
         'DefinitelyNotOk' => 'Boolean',
         'AccessCount' => 'Int',
@@ -63,11 +63,11 @@ class HealthCheckProviderSecurity extends DataObject
         'Title' => 'Varchar',
     ];
 
-    public static function check($key, $ip): bool
+    public static function check(string $key, string $ip): bool
     {
         $filter = [
             'Secret' => $key,
-            'IPAddress' => $ip,
+            'IpAddress' => $ip,
         ];
 
         //we make sure we get the last one! Just in case there is more one.
