@@ -11,6 +11,8 @@ class HealthCheckController extends Controller
 {
     private static $url_segment = 'health-check-provider';
 
+    protected $editorID = 0;
+
     private static $allowed_actions = [
         'provide' => '->canProvide',
         'confirmreceipt' => '->canProvide',
@@ -34,6 +36,7 @@ class HealthCheckController extends Controller
         if($check !== 'all-good') {
             return $check;
         }
+
         $outcome = $this->recordReceipt($request);
 
         $this->getResponse()->addHeader('Content-type', 'application/json');
@@ -43,6 +46,7 @@ class HealthCheckController extends Controller
     protected function provideData() : string
     {
         $obj = HealthCheckProvider::create();
+        $obj->EditorID = $this->editorID;
         $obj->write();
 
         $obj->SendNow = true;
@@ -76,6 +80,8 @@ class HealthCheckController extends Controller
         $ip = $request->getIp();
         $outcome = HealthCheckProviderSecurity::check($key, $ip);
         if($outcome) {
+            $this->editorID = HealthCheckProviderSecurity::get_editor_id($key, $ip);
+
             return 'all-good';
         } else {
             return $this->httpError(403, 'Sorry, we can not provide access.');

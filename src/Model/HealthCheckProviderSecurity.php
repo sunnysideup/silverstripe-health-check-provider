@@ -5,6 +5,8 @@ namespace Sunnysideup\HealthCheckProvider\Model;
 use SilverStripe\Forms\CheckboxField;
 use SilverStripe\Forms\ReadonlyField;
 use SilverStripe\ORM\DataObject;
+use SilverStripe\Security\Member;
+use SilverStripe\Security\Security;
 
 class HealthCheckProviderSecurity extends DataObject
 {
@@ -30,6 +32,10 @@ class HealthCheckProviderSecurity extends DataObject
         'AccessCount' => 'Int',
     ];
 
+    private static $has_one = [
+        'Editor' => Member::class,
+    ];
+
     #######################
     ### Further DB Field Details
     #######################
@@ -46,10 +52,13 @@ class HealthCheckProviderSecurity extends DataObject
         'Secret' => 'Api Key Provided by Retriever',
         'IpAddress' => 'IP Address of Retriever',
         'Allowed' => 'Allow this key from this IP address?',
+        'Editor' => 'Report Editor',
+        'EditorID' => 'Report Editor',
     ];
 
     private static $summary_fields = [
         'Allowed.Nice' => 'Allow',
+        'Editor.Title' => 'Editor',
         'Secret' => 'Health Report Data',
         'IpAddress' => 'IP',
         'AccessCount' => 'Access Count',
@@ -65,6 +74,20 @@ class HealthCheckProviderSecurity extends DataObject
 
     public static function check(string $key, string $ip): bool
     {
+        $obj = self::get_object_from_filter($key, $ip);
+
+        return (bool) $obj->Allowed;
+    }
+
+    public static function get_editor_id(string $key, string $ip): int
+    {
+        $obj = self::get_object_from_filter($key, $ip);
+
+        return (int) $obj->EditorID;
+    }
+
+    protected static function get_object_from_filter(string $key, string $ip) : HealthCheckProviderSecurity
+    {
         $filter = [
             'Secret' => $key,
             'IpAddress' => $ip,
@@ -76,8 +99,11 @@ class HealthCheckProviderSecurity extends DataObject
             $obj = HealthCheckProviderSecurity::create($filter);
         }
         $obj->AccessCount++;
+
         $obj->write();
-        return (bool) $obj->Allowed;
+
+        return $obj;
+
     }
 
     /**
@@ -115,6 +141,12 @@ class HealthCheckProviderSecurity extends DataObject
     public function onBeforeWrite()
     {
         parent::onBeforeWrite();
+        if (! $this->EditorID) {
+            $user = Security::getCurrentUser();
+            if($user) {
+                $this->EditorID = Security::getCurrentUser()->ID;
+            }
+        }
         if (! $this->Secret) {
             $this->Secret = 'Careful: no key set - ' . mt_rand(0, 9999999999999999);
         }
