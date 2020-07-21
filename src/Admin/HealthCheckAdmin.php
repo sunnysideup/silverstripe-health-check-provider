@@ -9,6 +9,7 @@ use Sunnysideup\HealthCheckProvider\Model\HealthCheckProvider;
 class HealthCheckAdmin extends ModelAdmin
 {
     private static $managed_models = [
+        HealthCheckProviderSecurity::class,
         HealthCheckProvider::class,
         HealthCheckItemProvider::class,
     ];
