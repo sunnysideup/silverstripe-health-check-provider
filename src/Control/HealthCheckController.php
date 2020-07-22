@@ -45,7 +45,7 @@ class HealthCheckController extends Controller
 
         $this->getResponse()->addHeader('Content-type', 'application/json');
 
-        return '{"Outcome": "'.$outcome.'"}';
+        return '{"Success": "'.$outcome.'"}';
     }
 
     protected function provideData() : string
@@ -61,25 +61,24 @@ class HealthCheckController extends Controller
 
     }
 
-    protected function recordReceipt($request) : string
+    protected function recordReceipt($request) : bool
     {
-        $outcome = 'BAD';
+        $success = false;
         $id = intval($request->param('ID'));
         $code = $request->param('OtherID');
+        if(! $code) {
+            $code = 'no code provided';
+        }
         $obj = HealthCheckProvider::get()->byID($id);
         if($obj) {
             $obj->ReceiptCode = $code;
             $obj->Sent = true;
             $obj->write();
             if($obj->getCodesMatch()) {
-                $outcome = 'GOOD';
-            } else {
-                echo 'codes do not match';
+                $success = true;
             }
-        } else {
-            echo 'could not find ' . $id;
         }
-        return $outcome;
+        return $success;
     }
 
     protected function checkSecurity($request)

@@ -48,7 +48,7 @@ class HealthCheckItemProvider extends DataObject
     #######################
 
     private static $defaults = [
-        'Include' => true,
+        'Include' => false,
     ];
 
     private static $searchable_fields = [

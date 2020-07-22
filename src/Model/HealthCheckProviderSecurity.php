@@ -41,6 +41,7 @@ class HealthCheckProviderSecurity extends DataObject
     #######################
 
     private static $default_sort = [
+        'Allowed' => 'DESC',
         'Created' => 'DESC',
     ];
 
