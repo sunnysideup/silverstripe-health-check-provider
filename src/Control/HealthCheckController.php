@@ -45,7 +45,7 @@ class HealthCheckController extends Controller
 
         $this->getResponse()->addHeader('Content-type', 'application/json');
 
-        return '{"Success": "'.$outcome.'"}';
+        return '{"Success": '.$outcome.'}';
     }
 
     protected function provideData() : string
