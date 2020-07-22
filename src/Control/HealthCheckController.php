@@ -63,18 +63,22 @@ class HealthCheckController extends Controller
 
     protected function recordReceipt($request) : string
     {
+        $outcome = 'BAD';
         $id = intval($request->param('ID'));
         $code = $request->param('OtherID');
         $obj = HealthCheckProvider::get()->byID($id);
-        $obj->ReceiptCode = $code;
-        $obj->Sent = true;
-        $obj->write();
-        if($obj->getCodesMatch()) {
-            $outcome = 'BAD';
+        if($obj) {
+            $obj->ReceiptCode = $code;
+            $obj->Sent = true;
+            $obj->write();
+            if($obj->getCodesMatch()) {
+                $outcome = 'GOOD';
+            } else {
+                echo 'codes do not match';
+            }
         } else {
-            $outcome = 'GOOD';
+            echo 'could not find ' . $id;
         }
-
         return $outcome;
     }
 
