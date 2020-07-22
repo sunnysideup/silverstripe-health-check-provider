@@ -65,7 +65,7 @@ class HealthCheckController extends Controller
     {
         $id = intval($request->param('ID'));
         $code = $request->param('OtherID');
-        $obj = HealthCheck::get()->byID($id);
+        $obj = HealthCheckProvider::get()->byID($id);
         $obj->ReceiptCode = $code;
         $obj->Sent = true;
         $obj->write();
