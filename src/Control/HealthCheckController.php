@@ -98,6 +98,9 @@ class HealthCheckController extends Controller
 
     protected function canProvide(): bool
     {
-        return Environment::getEnv('SS_HEALTH_CHECK_PROVIDER_ALLOW_RETRIEVAL') ? true : false;
+        if(Environment::getEnv('SS_HEALTH_CHECK_PROVIDER_ALLOW_RETRIEVAL')) {
+            return true;
+        }
+        die('Please set SS_HEALTH_CHECK_PROVIDER_ALLOW_RETRIEVAL to use this facility.')
     }
 }
