@@ -78,6 +78,7 @@ class HealthCheckItemProvider extends DataObject
 
     private static $casting = [
         'AnswerSummary' => 'HTMLText',
+        'AnswerAll' => 'HTMLText',
         'Title' => 'Varchar',
         'Code' => 'Varchar',
         'CodeNice' => 'Varchar',
@@ -98,6 +99,12 @@ class HealthCheckItemProvider extends DataObject
         return preg_replace('/([a-z])([A-Z])/s', '$1 $2', $this->getCode());
     }
 
+    public function getAnswerAll()
+    {
+        $data = $this->findAnswer();
+
+        return DBField::create_field('HTMLText', '<pre>' . json_encode($data, JSON_PRETTY_PRINT) . '</pre>');
+    }
     public function getAnswerSummary()
     {
         $data = $this->findAnswer();
@@ -165,7 +172,7 @@ class HealthCheckItemProvider extends DataObject
             'Root.Main',
             [
                 ReadonlyField::create('CodeNice', 'Code'),
-                ReadonlyField::create('AnswerSummary', 'Answer'),
+                ReadonlyField::create('AnswerAll', 'Answer'),
             ]
         );
 
