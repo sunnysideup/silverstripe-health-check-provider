@@ -20,7 +20,7 @@ class WhatFiles extends HealthCheckItemRunner
     ];
 
     private static $excluded_folders = [
-        DIRECTORY_SEPARATOR . '.protected',
+        '.protected',
     ];
 
     private static $excluded_files = [
