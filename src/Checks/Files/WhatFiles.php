@@ -57,7 +57,7 @@ class WhatFiles extends HealthCheckItemRunner
                 continue;
             }
             $folderName = basename(dirname($path));
-            if ($this->excludeFolderTest($folderName)) {
+            if ($this->excludeFolderTest($path)) {
                 continue;
             }
             if ($this->isCountableFile($path)) {
@@ -137,11 +137,13 @@ class WhatFiles extends HealthCheckItemRunner
      * @param  string $folderName
      * @return bool
      */
-    protected function excludeFolderTest(string $folderName): bool
+    protected function excludeFolderTest(string $path): bool
     {
         $listOfItemsToSearchFor = $this->Config()->get('excluded_folders');
         foreach ($listOfItemsToSearchFor as $test) {
-            if ($folderName === $test) {
+            $folder = DIRECTORY_SEPARATOR . trim($test, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+            $pathExtra = DIRECTORY_SEPARATOR . trim($path, DIRECTORY_SEPARATOR) .  DIRECTORY_SEPARATOR;
+            if (stripos($pathExtra, $folder) !== false) {
                 return true;
             }
         }
