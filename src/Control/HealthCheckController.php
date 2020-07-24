@@ -101,6 +101,6 @@ class HealthCheckController extends Controller
         if(Environment::getEnv('SS_HEALTH_CHECK_PROVIDER_ALLOW_RETRIEVAL')) {
             return true;
         }
-        die('Please set SS_HEALTH_CHECK_PROVIDER_ALLOW_RETRIEVAL to use this facility.')
+        die('Please set SS_HEALTH_CHECK_PROVIDER_ALLOW_RETRIEVAL to use this facility.');
     }
 }
