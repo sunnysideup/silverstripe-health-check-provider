@@ -19,7 +19,9 @@ class WhatFiles extends HealthCheckItemRunner
         DIRECTORY_SEPARATOR . '.',
     ];
 
-    private static $excluded_folders = [];
+    private static $excluded_folders = [
+        DIRECTORY_SEPARATOR . '.protected',
+    ];
 
     private static $excluded_files = [
         'error-500.html',
@@ -74,7 +76,7 @@ class WhatFiles extends HealthCheckItemRunner
         }
 
         return [
-            'Path' => $this->getAssetPath(),
+            'Path' => ASSETS_DIR,
             'Files' => $finalArray,
             'Count' => [
                 'FileSystem' => $count,
@@ -165,7 +167,7 @@ class WhatFiles extends HealthCheckItemRunner
     {
         $listOfItemsToSearchFor = $this->Config()->get('not_real_file_substrings');
         foreach ($listOfItemsToSearchFor as $test) {
-            if (strpos($path, $test)) {
+            if (strpos(DIRECTORY_SEPARATOR . $path, $test)) {
                 return false;
             }
         }
