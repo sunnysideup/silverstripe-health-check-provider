@@ -26,6 +26,8 @@ class WhatFiles extends HealthCheckItemRunner
     private static $excluded_files = [
         'error-500.html',
         'error-404.html',
+        '.gitignore',
+        '.htaccess',
         // DIRECTORY_SEPARATOR . '_resampled',
         // DIRECTORY_SEPARATOR . '__',
         // DIRECTORY_SEPARATOR . '.',
