@@ -74,10 +74,9 @@ class HealthCheckController extends Controller
             $obj->ReceiptCode = $code;
             $obj->Sent = true;
             $obj->write();
-            if($obj->getCodesMatch()) {
-                $success = true;
-            }
+            $success = $obj->getCodesMatch();
         }
+
         return $success;
     }
 
