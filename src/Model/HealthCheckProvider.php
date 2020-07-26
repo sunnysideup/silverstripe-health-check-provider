@@ -39,8 +39,8 @@ class HealthCheckProvider extends DataObject
         'OtherUrls' => 'Text',
         'SendNow' => 'Boolean',
         'Sent' => 'Boolean',
-        'SendCode' => 'Varchar',
-        'ReceiptCode' => 'Varchar',
+        'SendCode' => 'Varchar(125)',
+        'ReceiptCode' => 'Varchar(125)',
         'HasError' => 'Boolean',
         'Data' => 'Text',
     ];
@@ -141,8 +141,16 @@ class HealthCheckProvider extends DataObject
             $this->HasError = $this->getCodesMatch() ? false : true;
         } else {
             $this->Data = json_encode($this->retrieveDataInner());
-            $this->SendCode = hash('ripemd160', $this->Data);
+            $this->SendCode = $this->createSendCode();
+
         }
+    }
+
+    protected function createSendCode()
+    {
+        $array = json_decode($this->Data, 1);
+        $serialized = serialize($array);
+        return hash('ripemd160', $md5);
     }
 
     public function getCodesMatch(): bool
@@ -311,6 +319,7 @@ class HealthCheckProvider extends DataObject
     {
         $rawData = [
             'ID' => $this->ID,
+            'SendCode' => $this->SendCode,
             'MainUrl' => $this->MainUrl,
             'OtherUrls' => $this->OtherUrls,
             'Editor' => [
