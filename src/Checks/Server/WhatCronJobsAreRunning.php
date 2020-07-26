@@ -8,7 +8,14 @@ class WhatCronJobsAreRunning extends HealthCheckItemRunner
 {
     public function getCalculatedAnswer()
     {
-        return shell_exec('for user in $(cut -f1 -d: /etc/passwd); do crontab -u $user -l; done');
+        $data = shell_exec('for user in $(cut -f1 -d: /etc/passwd); do crontab -u $user -l; done');
+        $newLines = [];
+        foreach(explode("\n", $data) as $line) {
+            if(substr(trim($line, 0, 1)) !== '#') {
+                $newLines[] = $line;
+            }
+        }
+        return implode("\n", $newLines);
     }
 
     protected function nameSpacesRequired(): array
