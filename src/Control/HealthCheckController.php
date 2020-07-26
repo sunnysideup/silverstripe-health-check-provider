@@ -9,23 +9,24 @@ use Sunnysideup\HealthCheckProvider\Model\HealthCheckProviderSecurity;
 
 class HealthCheckController extends Controller
 {
-    private static $url_segment = 'health-check-provider';
-
     protected $editorID = 0;
+
+    private static $url_segment = 'health-check-provider';
 
     private static $allowed_actions = [
         'provide' => '->canProvide',
         'confirmreceipt' => '->canProvide',
     ];
 
-    public function index($request) {
+    public function index($request)
+    {
         return $this->httpError(404);
     }
 
     public function provide($request)
     {
         $check = $this->checkSecurity($request);
-        if($check !== 'all-good') {
+        if ($check !== 'all-good') {
             return $check;
         }
 
@@ -37,7 +38,7 @@ class HealthCheckController extends Controller
     public function confirmreceipt($request)
     {
         $check = $this->checkSecurity($request);
-        if($check !== 'all-good') {
+        if ($check !== 'all-good') {
             return $check;
         }
 
@@ -45,10 +46,10 @@ class HealthCheckController extends Controller
 
         $this->getResponse()->addHeader('Content-type', 'application/json');
 
-        return '{"Success": '.$outcome.'}';
+        return '{"Success": ' . $outcome . '}';
     }
 
-    protected function provideData() : string
+    protected function provideData(): string
     {
         $obj = HealthCheckProvider::create();
         $obj->EditorID = $this->editorID;
@@ -58,20 +59,19 @@ class HealthCheckController extends Controller
         $obj->write();
 
         return (string) $obj->Data;
-
     }
 
-    protected function recordReceipt($request) : bool
+    protected function recordReceipt($request): bool
     {
         $success = false;
         $id = intval($request->param('ID'));
         $code = $request->param('OtherID');
-        if(! $code) {
+        if (! $code) {
             $code = 'no code provided';
         }
         /** @var HealthCheckProvider|null */
         $obj = HealthCheckProvider::get()->byID($id);
-        if($obj) {
+        if ($obj) {
             $obj->ReceiptCode = $code;
             $obj->Sent = true;
             $obj->write();
@@ -87,18 +87,17 @@ class HealthCheckController extends Controller
         $key = $headers['handshake'] ?? '';
         $ip = $request->getIp();
         $outcome = HealthCheckProviderSecurity::check($key, $ip);
-        if($outcome) {
+        if ($outcome) {
             $this->editorID = HealthCheckProviderSecurity::get_editor_id($key, $ip);
 
             return 'all-good';
-        } else {
-            return $this->httpError(403, 'Sorry, we can not provide access.');
         }
+        return $this->httpError(403, 'Sorry, we can not provide access.');
     }
 
     protected function canProvide(): bool
     {
-        if(Environment::getEnv('SS_HEALTH_CHECK_PROVIDER_ALLOW_RETRIEVAL')) {
+        if (Environment::getEnv('SS_HEALTH_CHECK_PROVIDER_ALLOW_RETRIEVAL')) {
             return true;
         }
         die('Please set SS_HEALTH_CHECK_PROVIDER_ALLOW_RETRIEVAL to use this facility.');

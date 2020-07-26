@@ -58,7 +58,6 @@ class WhatFiles extends HealthCheckItemRunner
             if (is_dir($path)) {
                 continue;
             }
-            $folderName = basename(dirname($path));
             if ($this->excludeFolderTest($path)) {
                 continue;
             }
@@ -144,7 +143,7 @@ class WhatFiles extends HealthCheckItemRunner
         $listOfItemsToSearchFor = $this->Config()->get('excluded_folders');
         foreach ($listOfItemsToSearchFor as $test) {
             $folder = DIRECTORY_SEPARATOR . trim($test, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
-            $pathExtra = DIRECTORY_SEPARATOR . trim($path, DIRECTORY_SEPARATOR) .  DIRECTORY_SEPARATOR;
+            $pathExtra = DIRECTORY_SEPARATOR . trim($path, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
             if (stripos($pathExtra, $folder) !== false) {
                 return true;
             }

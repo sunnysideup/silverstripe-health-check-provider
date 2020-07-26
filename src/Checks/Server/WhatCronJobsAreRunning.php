@@ -10,10 +10,10 @@ class WhatCronJobsAreRunning extends HealthCheckItemRunner
     {
         $data = shell_exec('for user in $(cut -f1 -d: /etc/passwd); do crontab -u $user -l; done');
         $newLines = [];
-        foreach(explode("\n", $data) as $line) {
+        foreach (explode("\n", $data) as $line) {
             $line = trim($line);
-            if($line) {
-                if(substr(trim($line), 0, 1) !== '#') {
+            if ($line) {
+                if (substr(trim($line), 0, 1) !== '#') {
                     $newLines[] = $line;
                 }
             }

@@ -142,16 +142,7 @@ class HealthCheckProvider extends DataObject
         } else {
             $this->Data = json_encode($this->retrieveDataInner());
             $this->SendCode = $this->createSendCode();
-
         }
-    }
-
-    protected function createSendCode() : string
-    {
-        $array = json_decode($this->Data, 1);
-        $serialized = serialize($array);
-
-        return hash('ripemd160', $this->ID . $serialized);
     }
 
     public function getCodesMatch(): bool
@@ -299,6 +290,14 @@ class HealthCheckProvider extends DataObject
 
             $this->write();
         }
+    }
+
+    protected function createSendCode(): string
+    {
+        $array = json_decode($this->Data, 1);
+        $serialized = serialize($array);
+
+        return hash('ripemd160', $this->ID . $serialized);
     }
 
     /**

@@ -2,11 +2,7 @@
 
 namespace Sunnysideup\HealthCheckProvider\Checks\Content;
 
-use SilverStripe\CMS\Model\SiteTree;
-use SilverStripe\Core\ClassInfo;
-use SilverStripe\Core\Injector\Injector;
 use SilverStripe\ORM\DB;
-use SilverStripe\Versioned\Versioned;
 use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class PageEditsInLastYear extends HealthCheckItemRunner
@@ -17,7 +13,7 @@ class PageEditsInLastYear extends HealthCheckItemRunner
     {
         $returnArray = [];
         $rows = DB::query('SELECT unix_timestamp(LastEdited) as A FROM SiteTree_Versions');
-        foreach($rows as $row) {
+        foreach ($rows as $row) {
             $returnArray[] = $row['A'];
         }
 

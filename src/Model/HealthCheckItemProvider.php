@@ -105,6 +105,7 @@ class HealthCheckItemProvider extends DataObject
 
         return DBField::create_field('HTMLText', '<pre>' . json_encode($data, JSON_PRETTY_PRINT) . '</pre>');
     }
+
     public function getAnswerSummary()
     {
         $data = $this->findAnswer();
