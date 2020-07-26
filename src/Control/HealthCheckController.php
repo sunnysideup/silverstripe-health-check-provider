@@ -69,6 +69,7 @@ class HealthCheckController extends Controller
         if(! $code) {
             $code = 'no code provided';
         }
+        /** @var HealthCheckProvider|null */
         $obj = HealthCheckProvider::get()->byID($id);
         if($obj) {
             $obj->ReceiptCode = $code;

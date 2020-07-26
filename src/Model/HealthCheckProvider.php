@@ -148,9 +148,10 @@ class HealthCheckProvider extends DataObject
 
     protected function createSendCode() : string
     {
-        $array = json_decode($this->ID . $this->Data, 1);
+        $array = json_decode($this->Data, 1);
         $serialized = serialize($array);
-        return hash('ripemd160', $md5);
+
+        return hash('ripemd160', $this->ID . $serialized);
     }
 
     public function getCodesMatch(): bool

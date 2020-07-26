@@ -136,7 +136,7 @@ class WhatFiles extends HealthCheckItemRunner
 
     /**
      * should the folder be ignored
-     * @param  string $folderName
+     * @param  string $path
      * @return bool
      */
     protected function excludeFolderTest(string $path): bool

@@ -170,6 +170,7 @@ class HealthCheckProviderSecurity extends DataObject
         ];
 
         //we make sure we get the last one! Just in case there is more one.
+        /** @var HealthCheckProviderSecurity|null */
         $obj = HealthCheckProviderSecurity::get()->filter($filter)->last();
         if (! $obj) {
             $obj = HealthCheckProviderSecurity::create($filter);
