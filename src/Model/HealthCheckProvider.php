@@ -310,6 +310,7 @@ class HealthCheckProvider extends DataObject
     protected function retrieveDataInner(): array
     {
         $rawData = [
+            'ID' => $this->ID,
             'MainUrl' => $this->MainUrl,
             'OtherUrls' => $this->OtherUrls,
             'Editor' => [
