@@ -168,7 +168,7 @@ class HealthCheckProvider extends DataObject
     {
         parent::onAfterWrite();
 
-        if ($this->checkLoop < 3) {
+        if ($this->checkLoop < 3 && ! $this->SendCode) {
             $this->checkLoop++;
             foreach (HealthCheckItemProvider::get()->filter(['Include' => true]) as $item) {
                 $this->HealthCheckItemProviders()->add($item);
