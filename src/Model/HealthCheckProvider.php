@@ -20,6 +20,8 @@ class HealthCheckProvider extends DataObject
 
     private const NOT_PROVIDED_PHRASE = 'not provided';
 
+    protected $cacheForData = [];
+
     #######################
     ### Names Section
     #######################
@@ -91,6 +93,8 @@ class HealthCheckProvider extends DataObject
         'Title' => 'Varchar',
     ];
 
+    private $checkLoop = 0;
+
     /**
      * casted variable
      * @return string
@@ -155,20 +159,18 @@ class HealthCheckProvider extends DataObject
         return true;
     }
 
-    private $checkLoop = 0;
-
     public function onAfterWrite()
     {
         parent::onAfterWrite();
 
         if ($this->checkLoop < 3) {
             $this->checkLoop++;
-            if( ! $this->SendCode) {
+            if (! $this->SendCode) {
                 foreach (HealthCheckItemProvider::get()->filter(['Include' => true]) as $item) {
                     $this->HealthCheckItemProviders()->add($item);
                 }
                 $data = $this->retrieveDataInnerInner();
-                if(count($data)) {
+                if (count($data)) {
                     //send code first because included in data.
                     $this->SendCode = $this->createSendCode();
                     //create data.
@@ -178,11 +180,6 @@ class HealthCheckProvider extends DataObject
                 }
             }
         }
-    }
-
-    protected function hasAnswers() : bool
-    {
-        return (intval($this->HealthCheckItemProviders()->count()) > 0) ? true : false;
     }
 
     #######################
@@ -296,6 +293,10 @@ class HealthCheckProvider extends DataObject
         }
     }
 
+    protected function hasAnswers(): bool
+    {
+        return intval($this->HealthCheckItemProviders()->count()) > 0 ? true : false;
+    }
 
     protected function createSendCode(): string
     {
@@ -335,8 +336,6 @@ class HealthCheckProvider extends DataObject
             'Data' => $this->retrieveDataInnerInner(),
         ];
     }
-
-    protected $cacheForData = [];
 
     protected function retrieveDataInnerInner(): array
     {
