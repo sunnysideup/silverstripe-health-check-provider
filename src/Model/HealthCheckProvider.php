@@ -144,7 +144,7 @@ class HealthCheckProvider extends DataObject
         }
         if ($this->Sent) {
             $this->HasError = $this->getCodesMatch() ? false : true;
-        } else {
+        } elseif ($this->SendCode) {
             $this->Data = json_encode($this->retrieveDataInner());
         }
         if($this->exists() && $this->hasAnswers()) {
@@ -170,6 +170,8 @@ class HealthCheckProvider extends DataObject
             foreach (HealthCheckItemProvider::get()->filter(['Include' => true]) as $item) {
                 $this->HealthCheckItemProviders()->add($item);
             }
+            register_shutdown_function([$this, 'write']);
+        } elseif(! $this->Data) {
             register_shutdown_function([$this, 'write']);
         } else {
             //only triggers when ready!
@@ -309,7 +311,7 @@ class HealthCheckProvider extends DataObject
 
     protected function createSendCode(): string
     {
-        $array = json_decode($this->retrieveDataInnerInner(), 1);
+        $array = $this->retrieveDataInnerInner();
         $serialized = serialize($array);
 
         return hash('ripemd160', $this->ID . $serialized);
