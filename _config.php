@@ -1,5 +1,6 @@
 <?php
+
 use SilverStripe\Admin\CMSMenu;
-use Sunnysideup\HealthCheck\Admin\HealthCheckAdmin;
+use Sunnysideup\HealthCheckProvider\Admin\HealthCheckAdmin;
 
 CMSMenu::remove_menu_class(HealthCheckAdmin::class);

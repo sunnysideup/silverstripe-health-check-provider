@@ -61,6 +61,7 @@ class HealthCheckProvider extends DataObject
         'SendCode' => true,
         'ResponseCode' => true,
     ];
+
     private static $default_sort = [
         'Created' => 'DESC',
     ];
@@ -145,7 +146,7 @@ class HealthCheckProvider extends DataObject
             $this->HasError = $this->getCodesMatch() ? false : true;
         } else {
             $this->Data = json_encode($this->retrieveDataInner());
-            if(! $this->SendCode) {
+            if (! $this->SendCode) {
                 $this->SendCode = $this->createSendCode();
             }
         }
@@ -154,7 +155,7 @@ class HealthCheckProvider extends DataObject
     public function getCodesMatch(): bool
     {
         if ($this->Sent) {
-            return $this->SendCode === $this->ReceiptCode;
+            return $this->SendCode === $this->ResponseCode;
         }
         return true;
     }
@@ -190,7 +191,7 @@ class HealthCheckProvider extends DataObject
             [
                 'SendCode',
                 'SendNow',
-                'ReceiptCode',
+                'ResponseCode',
                 'Sent',
                 'Data',
                 'EditorID',
@@ -323,7 +324,7 @@ class HealthCheckProvider extends DataObject
 
     protected function retrieveDataInner(): array
     {
-        $rawData = [
+        return [
             'ID' => $this->ID,
             'SendCode' => $this->SendCode,
             'MainUrl' => $this->MainUrl,
@@ -335,7 +336,6 @@ class HealthCheckProvider extends DataObject
             ],
             'Data' => $this->retrieveDataInnerInner(),
         ];
-        return $rawData;
     }
 
     protected function retrieveDataInnerInner(): array
