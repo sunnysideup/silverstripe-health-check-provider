@@ -55,7 +55,7 @@ class HealthCheckController extends Controller
         $obj->EditorID = $this->editorID;
         $obj->SendNow = true;
         $id = $obj->write();
-        sleep(3);
+        sleep(2);
         HealthCheckProvider::get()->byID($id);
         return (string) $obj->Data;
     }
