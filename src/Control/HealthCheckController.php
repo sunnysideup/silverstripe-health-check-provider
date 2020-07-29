@@ -72,7 +72,7 @@ class HealthCheckController extends Controller
         /** @var HealthCheckProvider|null */
         $obj = HealthCheckProvider::get()->byID($id);
         if ($obj) {
-            $obj->ReceiptCode = $code;
+            $obj->ResponseCode = $code;
             $obj->Sent = true;
             $obj->write();
             $success = $obj->getCodesMatch();

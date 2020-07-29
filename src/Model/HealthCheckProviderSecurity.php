@@ -58,9 +58,10 @@ class HealthCheckProviderSecurity extends DataObject
     ];
 
     private static $summary_fields = [
+        'Created' => 'First Access',
         'Allowed.Nice' => 'Allow',
         'Editor.Title' => 'Editor',
-        'Secret' => 'Health Report Data',
+        'Secret' => 'Api Key Provided',
         'IpAddress' => 'IP',
         'AccessCount' => 'Access Count',
     ];

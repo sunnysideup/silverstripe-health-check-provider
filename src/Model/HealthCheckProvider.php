@@ -40,7 +40,7 @@ class HealthCheckProvider extends DataObject
         'SendNow' => 'Boolean',
         'Sent' => 'Boolean',
         'SendCode' => 'Varchar(125)',
-        'ReceiptCode' => 'Varchar(125)',
+        'ResponseCode' => 'Varchar(125)',
         'HasError' => 'Boolean',
         'Data' => 'Text',
     ];
@@ -57,6 +57,10 @@ class HealthCheckProvider extends DataObject
     ### Further DB Field Details
     #######################
 
+    private static $indexes = [
+        'SendCode' => true,
+        'ResponseCode' => true,
+    ];
     private static $default_sort = [
         'Created' => 'DESC',
     ];
@@ -141,7 +145,9 @@ class HealthCheckProvider extends DataObject
             $this->HasError = $this->getCodesMatch() ? false : true;
         } else {
             $this->Data = json_encode($this->retrieveDataInner());
-            $this->SendCode = $this->createSendCode();
+            if(! $this->SendCode) {
+                $this->SendCode = $this->createSendCode();
+            }
         }
     }
 
@@ -327,8 +333,14 @@ class HealthCheckProvider extends DataObject
                 'FirstName' => $this->Editor()->FirstName,
                 'Surname' => $this->Editor()->Surname,
             ],
-            'Data' => [],
+            'Data' => $this->retrieveDataInnerInner(),
         ];
+        return $rawData;
+    }
+
+    protected function retrieveDataInnerInner(): array
+    {
+        $data = [];
         $includeIDList = $this->HealthCheckItemProviders()
             ->filter(['Include' => true])
             ->column('ID');
@@ -336,11 +348,11 @@ class HealthCheckProvider extends DataObject
         foreach ($list as $item) {
             $shortName = $item->getCode();
             if (in_array($item->ID, $includeIDList, false)) {
-                $rawData['Data'][$shortName] = $item->findAnswer($this);
+                $data[$shortName] = $item->findAnswer($this);
             } else {
-                $rawData['Data'][$shortName] = SELF::NOT_PROVIDED_PHRASE;
+                $data[$shortName] = SELF::NOT_PROVIDED_PHRASE;
             }
         }
-        return $rawData;
+        return $data;
     }
 }

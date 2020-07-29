@@ -137,7 +137,7 @@ class HealthCheckItemProvider extends DataObject
         parent::requireDefaultRecords();
         foreach (HealthCheckItemProvider::get() as $item) {
             if (! class_exists($item->RunnerClassName)) {
-                DB::alteration_message('Deleting superfluous: ' . $item->getTitle(), 'deleted');
+                DB::alteration_message('Deleting superfluous: ' . $item->RunnerClassName, 'deleted');
                 $item->delete();
             }
         }
