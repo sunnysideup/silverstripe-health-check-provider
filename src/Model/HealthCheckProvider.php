@@ -149,7 +149,7 @@ class HealthCheckProvider extends DataObject
         }
         if($this->exists() && $this->hasAnswers()) {
             if(! ($this->Sent || $this->SendCode)) {
-                $this->SendCode = $this->createSendCode();
+
             }
         }
     }
@@ -162,20 +162,20 @@ class HealthCheckProvider extends DataObject
         return true;
     }
 
+    private $checkLoop = 0;
+
     public function onAfterWrite()
     {
         parent::onAfterWrite();
 
-        if (! $this->hasAnswers()) {
+        if ($this->checkLoop < 3) {
+            $this->checkLoop++;
             foreach (HealthCheckItemProvider::get()->filter(['Include' => true]) as $item) {
                 $this->HealthCheckItemProviders()->add($item);
             }
-            register_shutdown_function([$this, 'write']);
-        } elseif(! $this->Data) {
-            register_shutdown_function([$this, 'write']);
-        } else {
-            //only triggers when ready!
-            $this->send();
+            $this->SendCode = $this->createSendCode();
+            $this->Data = json_encode($this->retrieveDataInner());
+            $this->write();
         }
     }
 
@@ -295,19 +295,6 @@ class HealthCheckProvider extends DataObject
         }
     }
 
-    public function send()
-    {
-        if ($this->SendNow && ! $this->Sent) {
-            //create final data
-            $this->SendNow = false;
-            $this->write();
-
-            // mark as sent
-            $this->Sent = true;
-
-            $this->write();
-        }
-    }
 
     protected function createSendCode(): string
     {

@@ -53,11 +53,10 @@ class HealthCheckController extends Controller
     {
         $obj = HealthCheckProvider::create();
         $obj->EditorID = $this->editorID;
-        $obj->write();
-
         $obj->SendNow = true;
-        $obj->write();
-
+        $id = $obj->write();
+        sleep(3);
+        HealthCheckProvider::get()->byID($id);
         return (string) $obj->Data;
     }
 
@@ -66,14 +65,15 @@ class HealthCheckController extends Controller
         $success = false;
         $id = intval($request->param('ID'));
         $code = $request->param('OtherID');
-        if (! $code) {
-            $code = 'no code provided';
-        }
         /** @var HealthCheckProvider|null */
         $obj = HealthCheckProvider::get()->byID($id);
         if ($obj) {
+            if (! $code) {
+                $code = 'no code provided';
+            }
             $obj->ResponseCode = $code;
             $obj->Sent = true;
+            $obj->SendNow = false;
             $obj->write();
             $success = $obj->getCodesMatch();
         }
