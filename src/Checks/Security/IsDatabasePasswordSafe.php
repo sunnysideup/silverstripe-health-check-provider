@@ -7,7 +7,7 @@ use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class IsDatabasePasswordSafe extends HealthCheckItemRunner
 {
-    public function getCalculatedAnswer(): string
+    public function getCalculatedAnswer(): bool
     {
         return $this->checkPassword(Environment::getEnv('SS_DATABASE_PASSWORD'));
     }
