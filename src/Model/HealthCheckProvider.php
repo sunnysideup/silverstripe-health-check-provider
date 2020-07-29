@@ -146,9 +146,6 @@ class HealthCheckProvider extends DataObject
             $this->HasError = $this->getCodesMatch() ? false : true;
         } else {
             $this->Data = json_encode($this->retrieveDataInner());
-            if (! $this->SendCode) {
-                $this->SendCode = $this->createSendCode();
-            }
         }
     }
 
@@ -171,6 +168,9 @@ class HealthCheckProvider extends DataObject
         } else {
             //only triggers when ready!
             $this->send();
+        }
+        if(! $this->Sent) {
+            $this->SendCode = $this->createSendCode();
         }
     }
 
@@ -301,7 +301,7 @@ class HealthCheckProvider extends DataObject
 
     protected function createSendCode(): string
     {
-        $array = json_decode($this->Data, 1);
+        $array = json_decode($this->retrieveDataInnerInner(), 1);
         $serialized = serialize($array);
 
         return hash('ripemd160', $this->ID . $serialized);
@@ -338,21 +338,26 @@ class HealthCheckProvider extends DataObject
         ];
     }
 
+    protected $cacheForData = [];
+
     protected function retrieveDataInnerInner(): array
     {
-        $data = [];
-        $includeIDList = $this->HealthCheckItemProviders()
-            ->filter(['Include' => true])
-            ->column('ID');
-        $list = HealthCheckItemProvider::get();
-        foreach ($list as $item) {
-            $shortName = $item->getCode();
-            if (in_array($item->ID, $includeIDList, false)) {
-                $data[$shortName] = $item->findAnswer($this);
-            } else {
-                $data[$shortName] = SELF::NOT_PROVIDED_PHRASE;
+        if (count($this->cacheForData) === 0) {
+            $this->cacheForData = [];
+            $includeIDList = $this->HealthCheckItemProviders()
+                ->filter(['Include' => true])
+                ->column('ID');
+            $list = HealthCheckItemProvider::get();
+            foreach ($list as $item) {
+                $shortName = $item->getCode();
+                if (in_array($item->ID, $includeIDList, false)) {
+                    $this->cacheForData[$shortName] = $item->findAnswer($this);
+                } else {
+                    $this->cacheForData[$shortName] = SELF::NOT_PROVIDED_PHRASE;
+                }
             }
         }
-        return $data;
+
+        return $this->cacheForData;
     }
 }
