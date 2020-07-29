@@ -173,8 +173,8 @@ class HealthCheckProvider extends DataObject
             foreach (HealthCheckItemProvider::get()->filter(['Include' => true]) as $item) {
                 $this->HealthCheckItemProviders()->add($item);
             }
-            $this->SendCode = $this->createSendCode();
             $this->Data = json_encode($this->retrieveDataInner());
+            $this->SendCode = $this->createSendCode();
             $this->write();
         }
     }
