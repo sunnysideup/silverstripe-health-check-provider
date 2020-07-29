@@ -144,13 +144,6 @@ class HealthCheckProvider extends DataObject
         }
         if ($this->Sent) {
             $this->HasError = $this->getCodesMatch() ? false : true;
-        } elseif ($this->SendCode) {
-            $this->Data = json_encode($this->retrieveDataInner());
-        }
-        if($this->exists() && $this->hasAnswers()) {
-            if(! ($this->Sent || $this->SendCode)) {
-
-            }
         }
     }
 
@@ -168,14 +161,22 @@ class HealthCheckProvider extends DataObject
     {
         parent::onAfterWrite();
 
-        if ($this->checkLoop < 3 && ! $this->SendCode) {
+        if ($this->checkLoop < 3) {
             $this->checkLoop++;
-            foreach (HealthCheckItemProvider::get()->filter(['Include' => true]) as $item) {
-                $this->HealthCheckItemProviders()->add($item);
+            if( ! $this->SendCode) {
+                foreach (HealthCheckItemProvider::get()->filter(['Include' => true]) as $item) {
+                    $this->HealthCheckItemProviders()->add($item);
+                }
+                $data = $this->retrieveDataInnerInner();
+                if(count($data)) {
+                    //send code first because included in data.
+                    $this->SendCode = $this->createSendCode();
+                    //create data.
+                    $this->Data = json_encode($this->retrieveDataInner());
+                    //loop
+                    $this->write();
+                }
             }
-            $this->Data = json_encode($this->retrieveDataInner());
-            $this->SendCode = $this->createSendCode();
-            $this->write();
         }
     }
 
