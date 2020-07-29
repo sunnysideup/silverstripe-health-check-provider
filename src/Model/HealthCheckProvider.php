@@ -169,8 +169,9 @@ class HealthCheckProvider extends DataObject
             //only triggers when ready!
             $this->send();
         }
-        if(! $this->Sent) {
+        if(! ($this->Sent || $this->SendCode)) {
             $this->SendCode = $this->createSendCode();
+            $this->write();
         }
     }
 
