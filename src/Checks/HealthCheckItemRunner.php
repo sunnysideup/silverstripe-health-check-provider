@@ -68,7 +68,6 @@ class HealthCheckItemRunner
         foreach ($pages as $page) {
             if ($page->IsPublished()) {
                 $array[$page->ID] = [
-                    'ID' => $page->ID,
                     'MenuTitle' => $page->MenuTitle,
                     'CMSEditLink' => $page->CMSEditLink(),
                     'Link' => $page->Link(),

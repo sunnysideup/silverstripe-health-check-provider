@@ -9,6 +9,6 @@ class DatabaseConnectorType extends HealthCheckItemRunner
 {
     public function getCalculatedAnswer(): string
     {
-        return Environment::getEnv('SS_DATABASE_CLASS');
+        return Environment::getEnv('SS_DATABASE_CLASS') ?: 'MySQLDatabase';
     }
 }
