@@ -179,7 +179,7 @@ class HealthCheckProvider extends DataObject
 
     protected function hasAnswers() : bool
     {
-        (intval($this->HealthCheckItemProviders()->count()) > 0) ? true : false;
+        return (intval($this->HealthCheckItemProviders()->count()) > 0) ? true : false;
     }
 
     #######################
