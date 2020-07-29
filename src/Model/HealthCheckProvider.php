@@ -147,6 +147,11 @@ class HealthCheckProvider extends DataObject
         } else {
             $this->Data = json_encode($this->retrieveDataInner());
         }
+        if($this->exists() && $this->hasAnswers()) {
+            if(! ($this->Sent || $this->SendCode)) {
+                $this->SendCode = $this->createSendCode();
+            }
+        }
     }
 
     public function getCodesMatch(): bool
@@ -160,7 +165,8 @@ class HealthCheckProvider extends DataObject
     public function onAfterWrite()
     {
         parent::onAfterWrite();
-        if (intval($this->HealthCheckItemProviders()->count()) === 0) {
+
+        if (! $this->hasAnswers()) {
             foreach (HealthCheckItemProvider::get()->filter(['Include' => true]) as $item) {
                 $this->HealthCheckItemProviders()->add($item);
             }
@@ -169,10 +175,11 @@ class HealthCheckProvider extends DataObject
             //only triggers when ready!
             $this->send();
         }
-        if(! ($this->Sent || $this->SendCode)) {
-            $this->SendCode = $this->createSendCode();
-            $this->write();
-        }
+    }
+
+    protected function hasAnswers() : bool
+    {
+        (intval($this->HealthCheckItemProviders()->count()) > 0) ? true : false;
     }
 
     #######################
