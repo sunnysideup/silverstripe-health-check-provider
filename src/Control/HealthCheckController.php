@@ -14,6 +14,7 @@ class HealthCheckController extends Controller
     private static $url_segment = 'health-check-provider';
 
     private static $allowed_actions = [
+        'ping' => true,
         'provide' => '->canProvide',
         'confirmreceipt' => '->canProvide',
     ];
@@ -21,6 +22,12 @@ class HealthCheckController extends Controller
     public function index($request)
     {
         return $this->httpError(404);
+    }
+
+    public function ping()
+    {
+        $this->getResponse()->addHeader('Content-type', 'application/json');
+        return '{"Success": ' . ($this->canProvide() ? 'true' : 'false') . '}';
     }
 
     public function provide($request)
