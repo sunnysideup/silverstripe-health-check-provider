@@ -2,9 +2,8 @@
 
 namespace Sunnysideup\HealthCheckProvider\Checks\Security;
 
-use SilverStripe\Security\Group;
-use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 use SilverStripe\Core\Environment;
+use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class IsDefaultAdminPasswordSafe extends HealthCheckItemRunner
 {

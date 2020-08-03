@@ -78,21 +78,20 @@ class HealthCheckItemRunner
         return $array;
     }
 
-    protected function checkPassword(string $pwd) : bool
+    protected function checkPassword(string $pwd): bool
     {
         if (strlen($pwd) < 16) {
             return false;
         }
 
-        if (!preg_match("#[0-9]+#", $pwd)) {
+        if (! preg_match('#[0-9]+#', $pwd)) {
             return false;
         }
 
-        if (!preg_match("#[a-zA-Z]+#", $pwd)) {
+        if (! preg_match('#[a-zA-Z]+#', $pwd)) {
             return false;
         }
 
         return true;
     }
-
 }
