@@ -28,6 +28,7 @@ class HealthCheckProviderSecurity extends DataObject
         'Secret' => 'Varchar(255)',
         'IpAddress' => 'Varchar(64)',
         'Allowed' => 'Boolean',
+        'AllowAllData' => 'Boolean',
         'DefinitelyNotOk' => 'Boolean',
         'AccessCount' => 'Int',
     ];
@@ -140,6 +141,18 @@ class HealthCheckProviderSecurity extends DataObject
         }
     }
 
+    public function onAfterWrite()
+    {
+        parent::onAfterWrite();
+        if($this->AllowAllData) {
+            $items = HealthCheckItemProvider::get()->filter(['Include' => false]);
+            foreach($items as $item) {
+                $item->Include = true;
+                $item->write();
+            }
+        }
+    }
+
     #######################
     ### CMS Edit Section
     #######################
@@ -155,6 +168,8 @@ class HealthCheckProviderSecurity extends DataObject
                 ReadonlyField::create('AccessCount', 'Access Count'),
                 CheckboxField::create('Allowed', 'Allow this IP with this Key?  If unsure, please double-check!')
                     ->setDescription('Make sure that you are OK with both the key and the IP address to ensure security.'),
+                CheckboxField::create('AllowAllData', 'Check this box to allow access to all for any IPs granted access')
+                    ->setDescription('Carefully consider if you are ok with this'),
                 CheckboxField::create('DefinitelyNotOk', 'Check if you think this is a bad request')
                     ->setDescription('Careful, checking this will stop any future retrievals with this key and IP.'),
             ]

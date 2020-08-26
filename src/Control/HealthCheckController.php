@@ -14,7 +14,7 @@ class HealthCheckController extends Controller
     private static $url_segment = 'health-check-provider';
 
     private static $allowed_actions = [
-        'ping' => true,
+        'ping' => '->canProvide',
         'provide' => '->canProvide',
         'confirmreceipt' => '->canProvide',
     ];
