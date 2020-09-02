@@ -31,7 +31,7 @@
             "Sunnysideup\\HealthCheckProvider\\": "src/"
         }
     },
-    "suggested": {
+    "suggest": {
       "sunnysideup/test-email" : "test your email",
       "silverstripe/externallinks" : "check external links",
       "bringyourownideas/silverstripe-maintenance" : "analyse your modules",
