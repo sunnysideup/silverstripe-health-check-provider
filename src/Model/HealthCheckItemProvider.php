@@ -91,7 +91,10 @@ class HealthCheckItemProvider extends DataObject
 
     public function getCode(): string
     {
-        return ClassInfo::shortName($this->RunnerClassName);
+        if(class_exists($this->RunnerClassName)) {
+            return ClassInfo::shortName($this->RunnerClassName);
+        }
+        return 'error';
     }
 
     public function getCodeNice(): string
@@ -193,15 +196,23 @@ class HealthCheckItemProvider extends DataObject
 
     public function findAnswer(): array
     {
-        try {
-            $answer = $this->getRunner()->getCalculatedAnswer();
-        } catch (Exception $exception) {
-            $answer = 'Caught exception: ' . $exception->getMessage();
-        }
+            if($this->getRunner()) {
+                try {
+                $answer = $this->getRunner()->getCalculatedAnswer();
+                $isInstalled = $this->getRunner()->IsInstalled();
+                $isEnabled = $this->getRunner()->IsEnabled();
+                } catch (Exception $exception) {
+                    $answer = 'Caught exception: ' . $exception->getMessage();
+                }
+            } else {
+                $answer = 'error';
+                $isInstalled = false;
+                $isEnabled = false;
+            }
         return [
             'Answer' => $answer,
-            'IsInstalled' => $this->getRunner()->IsInstalled(),
-            'IsEnabled' => $this->getRunner()->IsEnabled(),
+            'IsInstalled' => $isInstalled,
+            'IsEnabled' => $isEnabled,
         ];
     }
 
