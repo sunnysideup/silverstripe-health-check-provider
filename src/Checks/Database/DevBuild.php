@@ -25,8 +25,8 @@ class DevBuild extends HealthCheckItemRunner
                     'Completed in %s seconds',
                     round($end, 2)
                 );
-            } catch (Exception $e) {
-                $answer = 'Error retrieving data: ' . $e->getMessage();
+            } catch (Exception $exception) {
+                $answer = 'Error retrieving data: ' . $exception->getMessage();
             }
 
             return $answer;

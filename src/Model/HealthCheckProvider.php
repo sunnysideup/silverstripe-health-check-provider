@@ -16,8 +16,14 @@ use SilverStripe\Security\Security;
 
 class HealthCheckProvider extends DataObject
 {
+    /**
+     * @var string
+     */
     private const VIEW_URL = 'https://check.silverstripe-webdevelopment.com/report/view/';
 
+    /**
+     * @var string
+     */
     private const NOT_PROVIDED_PHRASE = 'not provided';
 
     protected $cacheForData = [];
@@ -97,7 +103,6 @@ class HealthCheckProvider extends DataObject
 
     /**
      * casted variable
-     * @return string
      */
     public function getTitle(): string
     {
@@ -134,7 +139,7 @@ class HealthCheckProvider extends DataObject
     ### write Section
     #######################
 
-    public function onBeforeWrite()
+    protected function onBeforeWrite()
     {
         parent::onBeforeWrite();
         if (! $this->EditorID) {
@@ -147,7 +152,7 @@ class HealthCheckProvider extends DataObject
             $this->MainUrl = $this->getSiteURL();
         }
         if ($this->Sent) {
-            $this->HasError = $this->getCodesMatch() ? false : true;
+            $this->HasError = !$this->getCodesMatch();
         }
     }
 
@@ -159,12 +164,12 @@ class HealthCheckProvider extends DataObject
         return true;
     }
 
-    public function onAfterWrite()
+    protected function onAfterWrite()
     {
         parent::onAfterWrite();
 
         if ($this->checkLoop < 3) {
-            $this->checkLoop++;
+            ++$this->checkLoop;
             if (! $this->SendCode) {
                 foreach (HealthCheckItemProvider::get()->filter(['Include' => true]) as $item) {
                     $this->HealthCheckItemProviders()->add($item);
@@ -190,6 +195,7 @@ class HealthCheckProvider extends DataObject
     {
         parent::populateDefaults();
         $this->MainUrl = $this->getSiteURL();
+        return $this;
     }
 
     public function getCMSFields()
@@ -295,7 +301,7 @@ class HealthCheckProvider extends DataObject
 
     protected function hasAnswers(): bool
     {
-        return intval($this->HealthCheckItemProviders()->count()) > 0 ? true : false;
+        return (int) $this->HealthCheckItemProviders()->count() > 0;
     }
 
     protected function createSendCode(): string

@@ -18,11 +18,8 @@ class SizeOfDatabase extends HealthCheckItemRunner
     public function getCalculatedAnswer(): array
     {
         $rows = DB::query('SHOW TABLE STATUS;');
-        $array = [];
         $allowedKeys = $this->Config()->get('fields_required');
-        foreach ($rows as $row) {
-            $array[] = $row;
-        }
+        $array = $rows;
         foreach ($array as $pos => $row) {
             foreach (array_keys($row) as $key) {
                 if (! in_array($key, $allowedKeys, true)) {

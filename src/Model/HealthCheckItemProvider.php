@@ -18,7 +18,7 @@ use Sunnysideup\HealthCheckProvider\Checks\HealthCheckItemRunner;
 
 class HealthCheckItemProvider extends DataObject
 {
-    protected $runner = null;
+    protected $runner;
 
     #######################
     ### Names Section
@@ -91,7 +91,7 @@ class HealthCheckItemProvider extends DataObject
 
     public function getCode(): string
     {
-        if(class_exists($this->RunnerClassName)) {
+        if (class_exists($this->RunnerClassName)) {
             return ClassInfo::shortName($this->RunnerClassName);
         }
         return 'error';
@@ -99,7 +99,7 @@ class HealthCheckItemProvider extends DataObject
 
     public function getCodeNice(): string
     {
-        return preg_replace('/([a-z])([A-Z])/s', '$1 $2', $this->getCode());
+        return preg_replace('#([a-z])([A-Z])#s', '$1 $2', $this->getCode());
     }
 
     public function getAnswerAll()
@@ -196,19 +196,18 @@ class HealthCheckItemProvider extends DataObject
 
     public function findAnswer(): array
     {
-            if($this->getRunner()) {
-                try {
+        $answer = 'error';
+        $isInstalled = false;
+        $isEnabled = false;
+        if ($this->getRunner()) {
+            try {
                 $answer = $this->getRunner()->getCalculatedAnswer();
                 $isInstalled = $this->getRunner()->IsInstalled();
                 $isEnabled = $this->getRunner()->IsEnabled();
-                } catch (Exception $exception) {
-                    $answer = 'Caught exception: ' . $exception->getMessage();
-                }
-            } else {
-                $answer = 'error';
-                $isInstalled = false;
-                $isEnabled = false;
+            } catch (Exception $exception) {
+                $answer = 'Caught exception: ' . $exception->getMessage();
             }
+        }
         return [
             'Answer' => $answer,
             'IsInstalled' => $isInstalled,
@@ -226,7 +225,7 @@ class HealthCheckItemProvider extends DataObject
             $returnArray = [];
             $count = 0;
             foreach ($mixed as $key => $item) {
-                $count++;
+                ++$count;
                 $returnArray[$this->summariseData($key)] = $this->summariseData($item);
                 if ($count > 3) {
                     $returnArray[] = ' + ' . count($mixed) . ' MORE ...';

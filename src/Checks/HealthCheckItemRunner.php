@@ -15,7 +15,7 @@ class HealthCheckItemRunner
     use Injectable;
     use Configurable;
 
-    protected $healthCheckItemProvider = null;
+    protected $healthCheckItemProvider;
 
     public function __construct(HealthCheckItemProvider $healthCheckItemProvider)
     {
@@ -84,14 +84,9 @@ class HealthCheckItemRunner
             return false;
         }
 
-        if (! preg_match('#[0-9]+#', $pwd)) {
+        if (! preg_match('#\d+#', $pwd)) {
             return false;
         }
-
-        if (! preg_match('#[a-zA-Z]+#', $pwd)) {
-            return false;
-        }
-
-        return true;
+        return (bool) preg_match('#[a-zA-Z]+#', $pwd);
     }
 }

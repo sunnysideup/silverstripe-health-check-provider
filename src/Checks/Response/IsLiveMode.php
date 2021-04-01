@@ -9,6 +9,6 @@ class IsLiveMode extends HealthCheckItemRunner
 {
     public function getCalculatedAnswer(): bool
     {
-        return Director::isLive() ? true : false;
+        return Director::isLive();
     }
 }

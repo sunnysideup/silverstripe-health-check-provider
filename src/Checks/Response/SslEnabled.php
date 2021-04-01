@@ -9,6 +9,6 @@ class SslEnabled extends HealthCheckItemRunner
 {
     public function getCalculatedAnswer(): bool
     {
-        return CanonicalURLMiddleware::singleton()->getForceSSL() ? true : false;
+        return CanonicalURLMiddleware::singleton()->getForceSSL();
     }
 }

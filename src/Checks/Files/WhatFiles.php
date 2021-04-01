@@ -62,7 +62,7 @@ class WhatFiles extends HealthCheckItemRunner
                 continue;
             }
             if ($this->isCountableFile($path)) {
-                $count++;
+                ++$count;
             }
             $size = filesize($path);
             $sizeSum += $size;
@@ -89,7 +89,6 @@ class WhatFiles extends HealthCheckItemRunner
 
     /**
      * return the location for assets
-     * @return string
      */
     protected function getAssetPath(): string
     {
@@ -98,13 +97,11 @@ class WhatFiles extends HealthCheckItemRunner
             return $path;
         }
         user_error('Could not find asset path');
+        return 'error';
     }
 
     /**
      * get an extension of a file
-     * @param  string $s
-     *
-     * @return string
      */
     protected function fileExtension(string $s): string
     {
@@ -115,8 +112,6 @@ class WhatFiles extends HealthCheckItemRunner
 
     /**
      * should the file be ignored
-     * @param  string $path
-     * @return bool
      */
     protected function excludeFileTest(string $path): bool
     {
@@ -135,8 +130,6 @@ class WhatFiles extends HealthCheckItemRunner
 
     /**
      * should the folder be ignored
-     * @param  string $path
-     * @return bool
      */
     protected function excludeFolderTest(string $path): bool
     {
@@ -154,16 +147,13 @@ class WhatFiles extends HealthCheckItemRunner
 
     protected function invalidExtension(string $path): bool
     {
-        return $this->validExtension($path) ? false : true;
+        return !$this->validExtension($path);
     }
 
     protected function validExtension(string $path): bool
     {
         $extension = $this->fileExtension($path);
-        if ($extension && in_array($extension, $this->allowedExtension, true)) {
-            return true;
-        }
-        return false;
+        return $extension && in_array($extension, $this->allowedExtension, true);
     }
 
     protected function isCountableFile($path): bool

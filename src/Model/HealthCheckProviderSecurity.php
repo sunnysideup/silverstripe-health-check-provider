@@ -91,7 +91,6 @@ class HealthCheckProviderSecurity extends DataObject
 
     /**
      * casted variable
-     * @return string
      */
     public function getTitle(): string
     {
@@ -121,7 +120,7 @@ class HealthCheckProviderSecurity extends DataObject
     ### write Section
     #######################
 
-    public function onBeforeWrite()
+    protected function onBeforeWrite()
     {
         parent::onBeforeWrite();
         if (! $this->EditorID) {
@@ -141,12 +140,12 @@ class HealthCheckProviderSecurity extends DataObject
         }
     }
 
-    public function onAfterWrite()
+    protected function onAfterWrite()
     {
         parent::onAfterWrite();
-        if($this->AllowAllData) {
+        if ($this->AllowAllData) {
             $items = HealthCheckItemProvider::get()->filter(['Include' => false]);
-            foreach($items as $item) {
+            foreach ($items as $item) {
                 $item->Include = true;
                 $item->write();
             }
@@ -186,12 +185,12 @@ class HealthCheckProviderSecurity extends DataObject
         ];
 
         //we make sure we get the last one! Just in case there is more one.
-        /** @var HealthCheckProviderSecurity|null */
+        /** @var HealthCheckProviderSecurity|null $obj */
         $obj = HealthCheckProviderSecurity::get()->filter($filter)->last();
         if (! $obj) {
             $obj = HealthCheckProviderSecurity::create($filter);
         }
-        $obj->AccessCount++;
+        ++$obj->AccessCount;
 
         $obj->write();
 

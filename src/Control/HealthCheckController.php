@@ -70,9 +70,9 @@ class HealthCheckController extends Controller
     protected function recordReceipt($request): bool
     {
         $success = false;
-        $id = intval($request->param('ID'));
+        $id = (int) $request->param('ID');
         $code = $request->param('OtherID');
-        /** @var HealthCheckProvider|null */
+        /** @var HealthCheckProvider|null $obj */
         $obj = HealthCheckProvider::get()->byID($id);
         if ($obj) {
             if (! $code) {

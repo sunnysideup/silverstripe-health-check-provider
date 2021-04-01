@@ -9,10 +9,7 @@ class AreThereAnyStartupErrors extends HealthCheckItemRunner
 {
     public function IsEnabled(): bool
     {
-        if (Environment::getEnv('SS_ALLOW_SMOKE_TEST')) {
-            return true;
-        }
-        return false;
+        return (bool) Environment::getEnv('SS_ALLOW_SMOKE_TEST');
     }
 
     protected function nameSpacesRequired(): array
