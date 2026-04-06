@@ -1,41 +1,41 @@
 {
-    "name": "sunnysideup/health-check-provider",
-    "type": "silverstripe-vendormodule",
-    "description": "Provides data to the check.silverstripe-webdevelopment.com site",
-    "keywords": [
-        "Silverstripe-CMS",
-        "CMS",
-        "Silverstripe",
-        "healthcheck",
-        "weather",
-        "server",
-        "database",
-        "seo",
-        "domain name"
-    ],
-    "require": {
-        "silverstripe/framework": "^4.0 || ^5.0"
-    },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
-    "license": "BSD-3-Clause",
-    "authors": [
-        {
-            "name": "Nicolaas Francken",
-            "email": "modules@sunnysideup.co.nz",
-            "role": "lead developer"
-        }
-    ],
-    "autoload": {
-        "psr-4": {
-            "Sunnysideup\\HealthCheckProvider\\": "src/"
-        }
-    },
-    "suggest": {
-      "sunnysideup/test-email" : "test your email",
-      "silverstripe/externallinks" : "check external links",
-      "bringyourownideas/silverstripe-maintenance" : "analyse your modules",
-      "bringyourownideas/silverstripe-composer-update-checker" : "analyse your modules",
-      "bringyourownideas/silverstripe-composer-security-checker" : "analyse your modules"
+  "name": "sunnysideup/health-check-provider",
+  "type": "silverstripe-vendormodule",
+  "description": "Provides data to the check.silverstripe-webdevelopment.com site",
+  "keywords": [
+    "Silverstripe-CMS",
+    "CMS",
+    "Silverstripe",
+    "healthcheck",
+    "weather",
+    "server",
+    "database",
+    "seo",
+    "domain name"
+  ],
+  "require": {
+    "silverstripe/framework": "^4.0 || ^5.0"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "license": "BSD-3-Clause",
+  "authors": [
+    {
+      "name": "Nicolaas Francken",
+      "email": "modules@sunnysideup.co.nz",
+      "role": "lead developer"
     }
+  ],
+  "autoload": {
+    "psr-4": {
+      "Sunnysideup\\HealthCheckProvider\\": "src/"
+    }
+  },
+  "suggest": {
+    "sunnysideup/test-email": "test your email",
+    "silverstripe/externallinks": "check external links",
+    "bringyourownideas/silverstripe-maintenance": "analyse your modules",
+    "bringyourownideas/silverstripe-composer-update-checker": "analyse your modules",
+    "bringyourownideas/silverstripe-composer-security-checker": "analyse your modules"
+  }
 }
